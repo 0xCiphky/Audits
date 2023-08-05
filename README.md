@@ -18,19 +18,14 @@
 
 ### August 2023
 
-#### Audit #1
+#### CodeHawks: Escrow Contract
 
-- **Protocol:** 
-- **Date:** 
-- **Category:** 
-- **Findings:** 
-- **Summary:** 
+- **Findings:** X High X Medium
+- **Source:** CodeHawks
 - [Full Report](link-to-the-full-audit-report-in-the-repo)
 
-#### Audit #2
+#### Beedle: Oracle free perpetual lending
 
-- **Date:** 
-- **Category:** 
-- **Findings:** 
-- **Summary:** 
+- **Findings:** X High X Medium
+- **Source:** CodeHawks
 - [Full Report](link-to-the-full-audit-report-in-the-repo)

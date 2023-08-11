@@ -1,5 +1,4 @@
-# Smart Contract Security Audit Reports
-
+# Smart Contract Security Audits
 ## General Statistics
 
 - **Total Number of Audits:** X

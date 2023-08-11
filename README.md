@@ -8,7 +8,7 @@
 
 ## Audit Reports
 
-| Audit Name                  | Category                  | Month     | Source     | High Findings | Med Findings | Full Report                          |
+| Audit Name                  | Category                  | Date     | Source     | High Findings | Med Findings | Full Report                          |
 |-----------------------------|---------------------------|-----------|------------|---------------|--------------|--------------------------------------|
 | Jubi Dao                    | DAO                       | June 2023 | Hashlock   | X             | X            | [Full Report](link-to-the-full-audit-report-in-the-repo) |
 | IHT                         | ERC20 Token               | June 2023 | Hashlock   | X             | X            | [Full Report](link-to-the-full-audit-report-in-the-repo) |

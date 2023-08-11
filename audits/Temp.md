@@ -4,7 +4,6 @@
 
 - **Purpose of the Contract:** [Description of what the contract does]
 - **Audit Date:** [Date of the Audit]
-- **Auditor:** [Name of the Auditor or Audit Firm]
 
 ---
 

@@ -3,8 +3,8 @@
 ## General Statistics
 
 - **Total Number of Audits:** X
-- **High Risk Findings:** X
-- **Medium Risk Findings:** X
+- **Total High Risk Findings:** X
+- **Total Medium Risk Findings:** X
 
 ## Audit Reports
 

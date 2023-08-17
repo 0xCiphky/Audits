@@ -15,4 +15,4 @@
 - [**Redbelly Network - Blockchain**](link-to-the-full-audit-report-in-the-repo)
 - [**CodeHawks - Escrow Contract**](https://github.com/areezladhani/Audits/blob/main/audits/CodeHawks.md)
 - [**Beedle - Oracle Free Perpetual Lending**](https://github.com/areezladhani/Audits/blob/main/audits/Beedle.md)
-- [**veRWA - Voting-Escrow**](link-to-the-full-audit-report-in-the-repo)
+- [**veRWA - Voting-Escrow**](https://github.com/areezladhani/Audits/blob/main/audits/veRWA.md)

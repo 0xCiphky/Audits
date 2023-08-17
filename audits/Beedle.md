@@ -1,5 +1,7 @@
 # Beedle - Oracle Free Perpetual Lending
 
+The audit report will be updated with the findings as soon as the CodeHawks team finalizes and releases their report.
+
 ---
 
 ## About

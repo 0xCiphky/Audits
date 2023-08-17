@@ -9,7 +9,7 @@
 
 ### July 2023
 - **Csens** - NFT, ERC20 Token ([Full Report](link-to-the-full-audit-report-in-the-repo))
-- **Horse-Link** - Marketplace ([Full Report](link-to-the-full-audit-report-in-the-repo))
+- **Horselink** - Marketplace ([Full Report](link-to-the-full-audit-report-in-the-repo))
 
 ### August 2023
 - **Redbelly Network** - Blockchain ([Full Report](link-to-the-full-audit-report-in-the-repo))

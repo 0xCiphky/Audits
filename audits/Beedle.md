@@ -4,6 +4,8 @@
 
 ## About
 
+Oracle free peer to peer perpetual lending.
+
 ---
 
 ## Scope

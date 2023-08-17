@@ -13,6 +13,6 @@
 
 ### August 2023
 - [**Redbelly Network - Blockchain**](link-to-the-full-audit-report-in-the-repo)
-- [**CodeHawks - Escrow Contract**](link-to-the-full-audit-report-in-the-repo)
+- [**CodeHawks - Escrow Contract**](https://github.com/areezladhani/Audits/blob/main/audits/CodeHawks.md)
 - [**Beedle - Oracle free perpetual lending**](link-to-the-full-audit-report-in-the-repo)
 - [**veRWA - Voting-escrow**](link-to-the-full-audit-report-in-the-repo)

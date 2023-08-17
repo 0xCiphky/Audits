@@ -1,9 +1,12 @@
 # Temp
 
+---
+
 ## About
 
-- **Purpose of the Contract:** [Description of what the contract does]
-- **Audit Date:** [Date of the Audit]
+---
+
+## Scope
 
 ---
 
@@ -11,61 +14,73 @@
 
 | ID  | Title                            | Severity   |
 |-----|----------------------------------|------------|
-| H01 | XXX    | High       |
-| M01 | XXX               | Medium     |
-| L01 | XXX        | Low/Info   |
-
+| [H01](#h01---xxx) | XXX                              | High       |
+| [M01](#m01---xxx) | XXX                              | Medium     |
+| [L01](#l01---xxx) | XXX                              | Low/Info   |
 
 ---
 
 ## Detailed Findings
 
-### [H01](#001---XXX) - XXX
+<details>
+  <summary><a id="h01---xxx"></a>[H01] - XXX</summary>
+  
+  <br>
 
-**Severity:** High
+  **Severity:** High
 
-**Summary:** 
+  **Summary:** 
 
-**Vulnerability Details:** 
+  **Vulnerability Details:** 
 
-**Impact:** 
+  **Impact:** 
 
-**Tools Used:** 
+  **Tools Used:** 
 
-**Recommendation:** 
+  **Recommendation:** 
 
-
-
----
-
-### [M01](#002---XXX) - XXX
-
-**Severity:** Medium
-
-**Summary:** 
-
-**Vulnerability Details:** 
-
-**Impact:** 
-
-**Tools Used:** 
-
-**Recommendation:** 
+</details>
 
 ---
 
-### [L01](#003---XXX) - XXX
+<details>
+  <summary><a id="m01---xxx"></a>[M01] - XXX</summary>
+  
+  <br>
 
-**Severity:** Low
+  **Severity:** Medium
 
-**Summary:** 
+  **Summary:** 
 
-**Vulnerability Details:** 
+  **Vulnerability Details:** 
 
-**Impact:** 
+  **Impact:** 
 
-**Tools Used:** 
+  **Tools Used:** 
 
-**Recommendation:** 
+  **Recommendation:** 
+
+</details>
+
+---
+
+<details>
+  <summary><a id="l01---xxx"></a>[L01] - XXX</summary>
+  
+  <br>
+
+  **Severity:** Low
+
+  **Summary:** 
+
+  **Vulnerability Details:** 
+
+  **Impact:** 
+
+  **Tools Used:** 
+
+  **Recommendation:** 
+
+</details>
 
 ---

@@ -1,9 +1,4 @@
 # Smart Contract Audits
-## General Statistics
-
-- **Total Number of Audits:** X
-- **Total High Risk Findings:** X
-- **Total Medium Risk Findings:** X
 
 ## Audit Reports
 

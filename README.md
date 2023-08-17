@@ -12,7 +12,7 @@
 | Jubi Dao                    | DAO                       | June 2023 | Hashlock   | X             | X            | [Full Report](link-to-the-full-audit-report-in-the-repo) |
 | IHT                         | ERC20 Token               | June 2023 | Hashlock   | X             | X            | [Full Report](link-to-the-full-audit-report-in-the-repo) |
 | Mezfi                       |          | June 2023 | Hashlock   | X             | X            | [Full Report](link-to-the-full-audit-report-in-the-repo) |
-| Csens                       |           | July 2023 | Hashlock   | X             | X            | [Full Report](link-to-the-full-audit-report-in-the-repo) |
+| Csens                       | NFT, ERC20 TOken          | July 2023 | Hashlock   | X             | X            | [Full Report](link-to-the-full-audit-report-in-the-repo) |
 | Horse-Link                  | Marketplace               | July 2023 | Hashlock   | X             | X            | [Full Report](link-to-the-full-audit-report-in-the-repo) |
 | Redbelly Network            | Blockchain                | August 2023| Hashlock  | X             | X            | [Full Report](link-to-the-full-audit-report-in-the-repo) |
 | CodeHawks                   | Escrow Contract           | August 2023| CodeHawks  | X             | X            | [Full Report](link-to-the-full-audit-report-in-the-repo) |

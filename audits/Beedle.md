@@ -1,4 +1,4 @@
-# Beedle - Oracle free perpetual lending
+# Beedle - Oracle Free Perpetual Lending
 
 ---
 

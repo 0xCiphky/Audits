@@ -1,5 +1,7 @@
 # veRWA - Voting-escrow
 
+The audit report will be updated with the findings as soon as the Code4rena team finalizes and releases their report.
+
 ---
 
 ## About

@@ -1,4 +1,4 @@
-# CodeHawks Escrow
+# CodeHawks - Escrow Contract
 
 ---
 

@@ -4,6 +4,8 @@
 
 ## About
 
+This project is meant to enable smart contract auditors (sellers) and smart contract protocols looking for audits (buyers) to connect using a credibly neutral option, with optional arbitration.
+
 ---
 
 ## Scope

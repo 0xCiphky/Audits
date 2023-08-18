@@ -3,9 +3,9 @@
 ## Audit Reports
 
 ### June 2023
-- [**Jubi Dao - DAO**](link-to-the-full-audit-report-in-the-repo)
-- [**IHT - ERC20 Token**](link-to-the-full-audit-report-in-the-repo)
-- [**Mezfi**](link-to-the-full-audit-report-in-the-repo)
+- [**Jubi Dao - DAO**](https://github.com/areezladhani/Audits/blob/main/audits/HashlockPending.md)
+- [**IHT - ERC20 Token**](https://github.com/areezladhani/Audits/blob/main/audits/HashlockPending.md)
+- [**Mezfi**](https://github.com/areezladhani/Audits/blob/main/audits/HashlockPending.md)
 
 ### July 2023
 - [**Csens - NFT, ERC20 Token**](https://github.com/areezladhani/Audits/blob/main/audits/HashlockPending.md)

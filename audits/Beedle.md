@@ -95,7 +95,7 @@ pools[poolId].outstandingLoans += debt;
   
 - High
 
-**Relevant GitHub Links:** 
+## **Relevant GitHub Links:** 
 
 - [https://github.com/Cyfrin/2023-07-beedle/blob/658e046bda8b010a5b82d2d85e824f3823602d27/src/Lender.sol#L591](https://github.com/Cyfrin/2023-07-beedle/blob/658e046bda8b010a5b82d2d85e824f3823602d27/src/Fees.sol#L26)
 

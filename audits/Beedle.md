@@ -87,21 +87,61 @@ Likelihood: High. The refinance function is a critical part of the protocol and 
 ---
 
 <details>
-  <summary><a id="h02---xxx"></a>[H02] - XXX</summary>
+  <summary><a id="h02---xxx"></a>[H02] - Failure in sellProfits Function due to absence of Token Approval</summary>
   
   <br>
 
-  **Severity:** High
+  **Severity:** 
+  
+  High
+
+  **Relevant GitHub Links:** 
+
+  [https://github.com/Cyfrin/2023-07-beedle/blob/658e046bda8b010a5b82d2d85e824f3823602d27/src/Lender.sol#L591](https://github.com/Cyfrin/2023-07-beedle/blob/658e046bda8b010a5b82d2d85e824f3823602d27/src/Fees.sol#L26)
 
   **Summary:** 
 
+  The sellProfits function, part of the Fees contract, is designed to swap tokens acquired from liquidations and fees for WETH. However, the function fails to approve the Uniswap v3 router to withdraw tokens from the contract. This oversight means the function will always revert, making it unusable. As noted in Uniswap's documentation, the contract must approve the router to withdraw the necessary tokens to execute the swap.
+
   **Vulnerability Details:** 
 
+ Here's the relevant part of the sellProfits function:
+
+  ```solidity
+  /// @notice swap loan tokens for collateral tokens from liquidations
+/// @param _profits the token to swap for WETH
+    function sellProfits(address _profits) public {
+        require(_profits != WETH, "not allowed");
+        uint256 amount = IERC20(_profits).balanceOf(address(this));
+
+        ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams({
+            tokenIn: _profits,
+            tokenOut: WETH,
+            fee: 3000,
+            recipient: address(this),
+            deadline: block.timestamp,
+            amountIn: amount,
+            amountOutMinimum: 0,
+            sqrtPriceLimitX96: 0
+        });
+
+        amount = swapRouter.exactInputSingle(params);
+        IERC20(WETH).transfer(staking, IERC20(WETH).balanceOf(address(this)));
+
+    }
+  ```
+  
   **Impact:** 
+
+  High: The lack of approval prevents the sellProfits function from executing correctly, rendering it unusable.
 
   **Tools Used:** 
 
+  Manual analysis
+
   **Recommendation:** 
+
+  Implement the necessary approve call within the sellProfits function to provide the Uniswap v3 router with the necessary permissions to withdraw the required tokens.
 
 </details>
 

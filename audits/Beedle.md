@@ -8,10 +8,6 @@ Oracle free peer to peer perpetual lending.
 
 ---
 
-## Scope
-
----
-
 ## Findings Summary
 
 | ID  | Title                            | Severity   |
@@ -38,7 +34,7 @@ Oracle free peer to peer perpetual lending.
 
 ## **Severity:** 
   
-- High
+- High Risk
 
 ## **Relevant GitHub Links:** 
 
@@ -95,7 +91,7 @@ pools[poolId].outstandingLoans += debt;
 
 ## **Severity:** 
   
-- High
+- High Risk
 
 ## **Relevant GitHub Links:** 
 
@@ -156,7 +152,7 @@ pools[poolId].outstandingLoans += debt;
 
 ## **Severity:** 
   
-  - High
+  - High Risk
 
 ## **Relevant GitHub Links:** 
 
@@ -237,7 +233,7 @@ This vulnerability can be addressed in two ways, depending on the design choice 
 
 ## **Severity:** 
   
-- High
+- High Risk
 
 ## **Relevant GitHub Links:** 
 
@@ -302,7 +298,7 @@ The code snippet of the vulnerable function:
 
 ## **Severity:** 
   
-- High
+- High Risk
 
 ## **Relevant GitHub Links:** 
 
@@ -351,7 +347,7 @@ lets look at an example
 
 ## **Severity:** 
 
-- High
+- High Risk
 
 ## **Relevant GitHub Links:** 
 
@@ -416,7 +412,7 @@ Let's illustrate this with an example:
 
 ## **Severity:** 
   
-  - Medium
+  - Medium Risk
 
 ## **Relevant GitHub Links:** 
 
@@ -478,7 +474,7 @@ function seizeLoan(uint256[] calldata loanIds) public {
 
 ## **Severity:** 
   
-  - Medium
+  - Medium Risk
 
 ## **Relevant GitHub Links:** 
 
@@ -590,49 +586,62 @@ uint256 govFee = (borrowerFee * loan.collateral) / 10000;
 ---
 
 <details>
-  <summary><a id="l02---xxx"></a>[L02] - XXX</summary>
+  <summary><a id="l02---xxx"></a>[L02] - Potential rounding error when computing interest</summary>
   
   <br>
 
 ## **Severity:** 
   
-  - Medium
+  - Low Risk
 
 ## **Relevant GitHub Links:** 
 
-- 
+- https://github.com/Cyfrin/2023-07-beedle/blob/658e046bda8b010a5b82d2d85e824f3823602d27/src/Lender.sol#L720
 
 ## **Summary:** 
 
-- 
+- Tokens with decimals under a certain threshold can lead to a loss of funds due to rounding errors in the _calculateInterest Function.
 
 ## **Vulnerability Details:** 
 
-- 
-
-- 
+- The _calculateInterest function in the Lender contract calculates the interest for a loan and the fees associated with it. The function is defined as follows:
 
 ```solidity
-
+function _calculateInterest(Loan memory l) internal view returns (uint256 interest, uint256 fees) {
+        uint256 timeElapsed = block.timestamp - l.startTimestamp;
+        interest = (l.interestRate * l.debt * timeElapsed) / 10000 / 365 days;
+        fees = (lenderFee * interest) / 10000;
+        interest -= fees;
+    }
 ```
 
-- 
+- If the debt token has a small number of decimals, the calculated interest and fees can be rounded down to zero
+
+Consider the following example:
+
+- Interest Rate = 1000
+- Debt = 10 * 10^2 (1000)
+- Time Elapsed = 1 hour (3600 seconds)
+- Lender Fee = 1000
   
-```solidity
+The computation is as follows:
 
-```
+- Interest = (1000 * 1000 * 3600) / (10000 * 86400) = 4.166666666666667 (will be rounded down to 4 in Solidity)
+- Fees = (1000 * 4.166666666666667) / 10000 = 0.4166666666666667 (will be rounded down to 0 in Solidity)
   
 ## **Impact:** 
 
-- 
+- Impact: High. The protocol could lose funds on fees, which could be exploited by malicious actors.
+
+- Likelihood: Low. This issue could occur whenever a loan is created using a token with a small number of decimals.
 
 ## **Tools Used:** 
 
-- 
+- Manual analysis
 
 ## **Recommendation:** 
 
-- 
+- One possible solution is to scale the number of decimals in the calculation depending on the tokens decimals before performing the division. After the division, the result can be scaled down to the correct number of decimals.
 
 </details>
 

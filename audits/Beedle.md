@@ -63,7 +63,9 @@ pools[oldPoolId].outstandingLoans -= loan.debt;
 _updatePoolBalance(poolId, pools[poolId].poolBalance - debt);
 pools[poolId].outstandingLoans += debt;
 ```
+
 - During the refinancing process, the new lender's pool balance should be updated once to reflect the new loan debt. However, near the end of the function, the new lender's pool balance is reduced by the same loan debt again. This results in the new lender's pool balance being deducted twice for the same debt, essentially double-counting the debt.
+  
 ```solidity
   pools[poolId].poolBalance -= debt;
 ```
@@ -173,7 +175,9 @@ pools[poolId].outstandingLoans += debt;
 ```solidity
  function buyLoan(uint256 loanId, bytes32 poolId) public {
   ```
+
 - A check is performed to confirm that the pool has sufficient funds to cover the total debt of the loan. If the pool meets the requirements, its balance is updated to include the new loan.
+  
 ```solidity
   // reject if the pool is not big enough
 uint256 totalDebt = loan.debt + lenderInterest + protocolInterest;
@@ -183,7 +187,9 @@ if (pools[poolId].poolBalance < totalDebt) revert PoolTooSmall();
 _updatePoolBalance(poolId, pools[poolId].poolBalance - totalDebt);
 pools[poolId].outstandingLoans += totalDebt;
   ```
+
 - The vulnerability arises from the fact that the new lender is set to msg.sender, rather than the owner of the pool that is acquiring the loan. This can lead to discrepancies, as the pool specified in the function parameters is used to verify and update balances, while the loan itself is updated with msg.sender as the new lender.
+  
 ```solidity
   // update the loan with the new info
 loans[loanId].lender = msg.sender;
@@ -300,7 +306,9 @@ When the addToPool function is called, the amount of tokens accounted for will b
         IERC20(pools[poolId].loanToken).transferFrom(msg.sender, address(this), amount);
     }
   ```
+
   Later, when the removeFromPool function is called, the protocol will transfer out the full accounted amount.
+  
   ```solidity
   function removeFromPool(bytes32 poolId, uint256 amount) external {
         if (pools[poolId].lender != msg.sender) revert Unauthorized();

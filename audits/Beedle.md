@@ -231,42 +231,114 @@ This vulnerability can be addressed in two ways, depending on the design choice 
 ---
 
 <details>
-  <summary><a id="h04---xxx"></a>[H04] - XXX</summary>
+  <summary><a id="h04---xxx"></a>[H04] - Lack of Slippage Control in sellProfits function </summary>
   
   <br>
 
-  **Severity:** High
+**Severity:** 
+  
+- High
 
-  **Summary:** 
+**Relevant GitHub Links:** 
 
-  **Vulnerability Details:** 
+- [https://github.com/Cyfrin/2023-07-beedle/blob/658e046bda8b010a5b82d2d85e824f3823602d27/src/Lender.sol#L591](https://github.com/Cyfrin/2023-07-beedle/blob/658e046bda8b010a5b82d2d85e824f3823602d27/src/Fees.sol#L37)
 
-  **Impact:** 
+**Summary:** 
 
-  **Tools Used:** 
+- The sellProfits function in the Fees contract is employed to swap tokens earned from liquidations and fees to WETH. This operation is performed via the swapExactInputSingle function in the Uniswap v3 router, which exchanges a fixed quantity of one token for the maximum possible amount of another token. The issue arises due to the amountOutMinimum parameter being hardcoded to 0, which leaves the swap susceptible to front-running attacks that could result in a loss of protocol funds.
 
-  **Recommendation:** 
+**Vulnerability Details:** 
+
+An attacker could potentially exploit this vulnerability in the following way:
+
+- The attacker identifies a sellProfits transaction for a substantial amount in the mempool.
+- The attacker then proceeds to sandwich the Uniswap swap, which could cause a significant loss of funds for the protocol due to the absence of slippage control.
+
+The code snippet of the vulnerable function:
+
+```solidity
+/// @notice swap loan tokens for collateral tokens from liquidations
+/// @param _profits the token to swap for WETH
+    function sellProfits(address _profits) public {
+        require(_profits != WETH, "not allowed");
+        uint256 amount = IERC20(_profits).balanceOf(address(this));
+
+        ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams({
+            tokenIn: _profits,
+            tokenOut: WETH,
+            fee: 3000,
+            recipient: address(this),
+            deadline: block.timestamp,
+            amountIn: amount,
+            amountOutMinimum: 0,
+            sqrtPriceLimitX96: 0
+        });
+
+        amount = swapRouter.exactInputSingle(params);
+        IERC20(WETH).transfer(staking, IERC20(WETH).balanceOf(address(this)));
+    }
+```
+  
+**Impact:** 
+
+- A front-running attack could potentially lead to a significant loss of protocol funds.
+
+**Tools Used:** 
+
+- Manual analysis
+
+**Recommendation:** 
+
+- Implement slippage control for the sellProfits function by setting a reasonable value for amountOutMinimum rather than hardcoding it to 0. This would limit the potential price impact of large swaps.
 
 </details>
 
 ---
 
 <details>
-  <summary><a id="h05---xxx"></a>[H05] - XXX</summary>
+  <summary><a id="h05---xxx"></a>[H05] - No Precision Scaling </summary>
   
   <br>
 
-  **Severity:** High
+**Severity:** 
+  
+- High
 
-  **Summary:** 
+**Relevant GitHub Links:** 
 
-  **Vulnerability Details:** 
+- [https://github.com/Cyfrin/2023-07-beedle/blob/658e046bda8b010a5b82d2d85e824f3823602d27/src/Lender.sol#L591](https://github.com/Cyfrin/2023-07-beedle/blob/658e046bda8b010a5b82d2d85e824f3823602d27/src/Lender.sol#L246)
 
-  **Impact:** 
+**Summary:** 
 
-  **Tools Used:** 
+- The contracts calculations assumes that both the debt and collateral variables are represented in tokens with the same decimals.
 
-  **Recommendation:** 
+**Vulnerability Details:** 
+
+- lets look at an example
+
+- The borrow function in the given contract calculates a loanRatio to determine the risk associated with a loan based on the debt and collateral provided.
+
+```solidity
+ uint256 loanRatio = (debt * 10 ** 18) / collateral;
+```
+
+- In scenarios where debt and collateral are tokens with different decimal precision, such as DAI (18 decimals) and USDC (6 decimals), the loanRatio can result in incorrect risk management as it is used to enforce the maximum loan-to-value ratio:
+  
+```solidity
+  if (loanRatio > pool.maxLoanRatio) revert RatioTooHigh();
+```
+  
+**Impact:** 
+
+- This can lead to loans with a higher actual ratio than intended, exposing lenders to higher default risks.
+
+**Tools Used:** 
+
+- Manual analysis
+
+**Recommendation:** 
+
+- When combining amounts of multiple tokens that may have different precision, convert all of the amounts into the same precision before any computation.
 
 </details>
 

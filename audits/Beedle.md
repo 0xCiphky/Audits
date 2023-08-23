@@ -148,21 +148,77 @@ Likelihood: High. The refinance function is a critical part of the protocol and 
 ---
 
 <details>
-  <summary><a id="h03---xxx"></a>[H03] - XXX</summary>
+  <summary><a id="h03---xxx"></a>[H03] - buyLoan function can be exploited to break protocol invariants</summary>
   
   <br>
 
-  **Severity:** High
+  **Severity:** 
+  
+  - High
+
+  **Relevant GitHub Links:** 
+
+  - [https://github.com/Cyfrin/2023-07-beedle/blob/658e046bda8b010a5b82d2d85e824f3823602d27/src/Lender.sol#L591](https://github.com/Cyfrin/2023-07-beedle/blob/658e046bda8b010a5b82d2d85e824f3823602d27/src/Lender.sol#L465)
 
   **Summary:** 
 
+  - The buyLoan function in the Lender contract may be manipulated to violate protocol invariants, due to a discrepancy in the assignment of the loan.lender field.
+
   **Vulnerability Details:** 
 
-  **Impact:** 
+- The buyLoan function in the Lender contract allows lenders to acquire loans from other lenders. However, this function may be exploited due to an issue with the assignment of the new lender.
 
-  **Tools Used:** 
+- The function takes two parameters: loanId to identify the loan to be purchased and poolId to identify the pool that will be acquiring the loan.
 
-  **Recommendation:** 
+```solidity
+ function buyLoan(uint256 loanId, bytes32 poolId) public {
+  ```
+- A check is performed to confirm that the pool has sufficient funds to cover the total debt of the loan. If the pool meets the requirements, its balance is updated to include the new loan.
+```solidity
+  // reject if the pool is not big enough
+uint256 totalDebt = loan.debt + lenderInterest + protocolInterest;
+if (pools[poolId].poolBalance < totalDebt) revert PoolTooSmall();
+
+// if they do have a big enough pool then transfer from their pool
+_updatePoolBalance(poolId, pools[poolId].poolBalance - totalDebt);
+pools[poolId].outstandingLoans += totalDebt;
+  ```
+- The vulnerability arises from the fact that the new lender is set to msg.sender, rather than the owner of the pool that is acquiring the loan. This can lead to discrepancies, as the pool specified in the function parameters is used to verify and update balances, while the loan itself is updated with msg.sender as the new lender.
+```solidity
+  // update the loan with the new info
+loans[loanId].lender = msg.sender;
+loans[loanId].interestRate = pools[poolId].interestRate;
+loans[loanId].startTimestamp = block.timestamp;
+loans[loanId].auctionStartTimestamp = type(uint256).max;
+loans[loanId].debt = totalDebt;
+  ```
+Consider the following attack scenario:
+
+- Lender 1 and Lender 2 each set up a pool.
+- Borrower 1 borrows from Lender 1’s pool.
+- Lender 1 initiates an auction for Borrower 1’s loan.
+- A malicious actor purchases Borrower 1’s loan, specifying Lender 2's pool as the acquiring pool.
+- Lender 2's pool balance is updated to account for the purchase.
+- The malicious actor becomes the new lender for the loan, as they were the msg.sender.
+  
+**Impact:** 
+
+- Severity: High. The targeted lender could lose funds as a result of this exploit.
+
+- Likelihood: High. Any actor within the protocol can execute this exploit.
+
+**Tools Used:** 
+
+- Manual analysis
+
+- Foundry
+
+**Recommendation:** 
+
+This vulnerability can be addressed in two ways, depending on the design choice of the protocol:
+
+  - Add an early check to confirm that msg.sender matches the owner of the lender pool specified in the function parameters. This would ensure that only the owner of the lender pool can call the buyLoan function.
+  - Change the loan.lender assignment from msg.sender to pool.lender. This would allow any actor to call buyLoan for any validated pool, but ensure that the new lender is correctly set to the owner of the acquiring pool.
 
 </details>
 

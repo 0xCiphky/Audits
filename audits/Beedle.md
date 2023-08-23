@@ -1,7 +1,5 @@
 # Beedle - Oracle Free Perpetual Lending
 
-The audit report will be updated with the findings as soon as the CodeHawks team finalizes and releases their report.
-
 ---
 
 ## About
@@ -93,7 +91,7 @@ pools[poolId].outstandingLoans += debt;
   
   <br>
 
-**Severity:** 
+## **Severity:** 
   
 - High
 
@@ -101,11 +99,11 @@ pools[poolId].outstandingLoans += debt;
 
 - [https://github.com/Cyfrin/2023-07-beedle/blob/658e046bda8b010a5b82d2d85e824f3823602d27/src/Lender.sol#L591](https://github.com/Cyfrin/2023-07-beedle/blob/658e046bda8b010a5b82d2d85e824f3823602d27/src/Fees.sol#L26)
 
-**Summary:** 
+## **Summary:** 
 
 - The sellProfits function, part of the Fees contract, is designed to swap tokens acquired from liquidations and fees for WETH. However, the function fails to approve the Uniswap v3 router to withdraw tokens from the contract. This oversight means the function will always revert, making it unusable. As noted in Uniswap's documentation, the contract must approve the router to withdraw the necessary tokens to execute the swap.
 
-**Vulnerability Details:** 
+## **Vulnerability Details:** 
 
  - Here's the relevant part of the sellProfits function:
 
@@ -133,15 +131,15 @@ pools[poolId].outstandingLoans += debt;
     }
   ```
   
-**Impact:** 
+## **Impact:** 
 
 - High: The lack of approval prevents the sellProfits function from executing correctly, rendering it unusable.
 
-**Tools Used:** 
+## **Tools Used:** 
 
 - Manual analysis
 
-**Recommendation:** 
+## **Recommendation:** 
 
 - Implement the necessary approve call within the sellProfits function to provide the Uniswap v3 router with the necessary permissions to withdraw the required tokens.
 
@@ -154,19 +152,19 @@ pools[poolId].outstandingLoans += debt;
   
   <br>
 
-  **Severity:** 
+## **Severity:** 
   
   - High
 
-  **Relevant GitHub Links:** 
+## **Relevant GitHub Links:** 
 
   - [https://github.com/Cyfrin/2023-07-beedle/blob/658e046bda8b010a5b82d2d85e824f3823602d27/src/Lender.sol#L591](https://github.com/Cyfrin/2023-07-beedle/blob/658e046bda8b010a5b82d2d85e824f3823602d27/src/Lender.sol#L465)
 
-  **Summary:** 
+## **Summary:** 
 
   - The buyLoan function in the Lender contract may be manipulated to violate protocol invariants, due to a discrepancy in the assignment of the loan.lender field.
 
-  **Vulnerability Details:** 
+## **Vulnerability Details:** 
 
 - The buyLoan function in the Lender contract allows lenders to acquire loans from other lenders. However, this function may be exploited due to an issue with the assignment of the new lender.
 
@@ -207,19 +205,19 @@ Consider the following attack scenario:
 - Lender 2's pool balance is updated to account for the purchase.
 - The malicious actor becomes the new lender for the loan, as they were the msg.sender.
   
-**Impact:** 
+## **Impact:** 
 
 - Severity: High. The targeted lender could lose funds as a result of this exploit.
 
 - Likelihood: High. Any actor within the protocol can execute this exploit.
 
-**Tools Used:** 
+## **Tools Used:** 
 
 - Manual analysis
 
 - Foundry
 
-**Recommendation:** 
+## **Recommendation:** 
 
 This vulnerability can be addressed in two ways, depending on the design choice of the protocol:
 
@@ -235,19 +233,19 @@ This vulnerability can be addressed in two ways, depending on the design choice 
   
   <br>
 
-**Severity:** 
+## **Severity:** 
   
 - High
 
-**Relevant GitHub Links:** 
+## **Relevant GitHub Links:** 
 
 - [https://github.com/Cyfrin/2023-07-beedle/blob/658e046bda8b010a5b82d2d85e824f3823602d27/src/Lender.sol#L591](https://github.com/Cyfrin/2023-07-beedle/blob/658e046bda8b010a5b82d2d85e824f3823602d27/src/Fees.sol#L37)
 
-**Summary:** 
+## **Summary:** 
 
 - The sellProfits function in the Fees contract is employed to swap tokens earned from liquidations and fees to WETH. This operation is performed via the swapExactInputSingle function in the Uniswap v3 router, which exchanges a fixed quantity of one token for the maximum possible amount of another token. The issue arises due to the amountOutMinimum parameter being hardcoded to 0, which leaves the swap susceptible to front-running attacks that could result in a loss of protocol funds.
 
-**Vulnerability Details:** 
+## **Vulnerability Details:** 
 
 An attacker could potentially exploit this vulnerability in the following way:
 
@@ -279,15 +277,15 @@ The code snippet of the vulnerable function:
     }
 ```
   
-**Impact:** 
+## **Impact:** 
 
 - A front-running attack could potentially lead to a significant loss of protocol funds.
 
-**Tools Used:** 
+## **Tools Used:** 
 
 - Manual analysis
 
-**Recommendation:** 
+## **Recommendation:** 
 
 - Implement slippage control for the sellProfits function by setting a reasonable value for amountOutMinimum rather than hardcoding it to 0. This would limit the potential price impact of large swaps.
 
@@ -300,19 +298,19 @@ The code snippet of the vulnerable function:
   
   <br>
 
-**Severity:** 
+## **Severity:** 
   
 - High
 
-**Relevant GitHub Links:** 
+## **Relevant GitHub Links:** 
 
 - [https://github.com/Cyfrin/2023-07-beedle/blob/658e046bda8b010a5b82d2d85e824f3823602d27/src/Lender.sol#L591](https://github.com/Cyfrin/2023-07-beedle/blob/658e046bda8b010a5b82d2d85e824f3823602d27/src/Lender.sol#L246)
 
-**Summary:** 
+## **Summary:** 
 
 - The contracts calculations assumes that both the debt and collateral variables are represented in tokens with the same decimals.
 
-**Vulnerability Details:** 
+## **Vulnerability Details:** 
 
 lets look at an example
 
@@ -328,15 +326,15 @@ lets look at an example
   if (loanRatio > pool.maxLoanRatio) revert RatioTooHigh();
 ```
   
-**Impact:** 
+## **Impact:** 
 
 - This can lead to loans with a higher actual ratio than intended, exposing lenders to higher default risks.
 
-**Tools Used:** 
+## **Tools Used:** 
 
 - Manual analysis
 
-**Recommendation:** 
+## **Recommendation:** 
 
 - When combining amounts of multiple tokens that may have different precision, convert all of the amounts into the same precision before any computation.
 
@@ -349,27 +347,29 @@ lets look at an example
   
   <br>
 
-  **Severity:** High
+## **Severity:** 
 
-  **Relevant GitHub Links:** 
+- High
 
-  https://github.com/Cyfrin/2023-07-beedle/blob/658e046bda8b010a5b82d2d85e824f3823602d27/src/Lender.sol#L182
+## **Relevant GitHub Links:** 
 
-https://github.com/Cyfrin/2023-07-beedle/blob/658e046bda8b010a5b82d2d85e824f3823602d27/src/Lender.sol#L198
+- https://github.com/Cyfrin/2023-07-beedle/blob/658e046bda8b010a5b82d2d85e824f3823602d27/src/Lender.sol#L182
 
-  **Summary:** 
+- https://github.com/Cyfrin/2023-07-beedle/blob/658e046bda8b010a5b82d2d85e824f3823602d27/src/Lender.sol#L198
 
-  The Beedle contract assumes that the amount of tokens inputted matches the amount received. However, this assumption may not hold true when dealing with tokens that impose a fee on transfers. This discrepancy between the amount received and the amount accounted for could lead to a loss of funds for all parties interacting with the protocol.
+## **Summary:** 
 
-  **Vulnerability Details:** 
+- The Beedle contract assumes that the amount of tokens inputted matches the amount received. However, this assumption may not hold true when dealing with tokens that impose a fee on transfers. This discrepancy between the amount received and the amount accounted for could lead to a loss of funds for all parties interacting with the protocol.
 
-  Let's illustrate this with an example:
+## **Vulnerability Details:** 
 
-Consider a scenario where a lending pool is set up with a loan token that imposes a fee on transfers.
+Let's illustrate this with an example:
 
-When the addToPool function is called, the amount of tokens accounted for will be more than the actual tokens received by the protocol due to the transfer fee.
+- Consider a scenario where a lending pool is set up with a loan token that imposes a fee on transfers.
 
-  ```solidity
+- When the addToPool function is called, the amount of tokens accounted for will be more than the actual tokens received by the protocol due to the transfer fee.
+
+```solidity
   function addToPool(bytes32 poolId, uint256 amount) external {
         if (pools[poolId].lender != msg.sender) revert Unauthorized();
         if (amount == 0) revert PoolConfig();
@@ -377,9 +377,9 @@ When the addToPool function is called, the amount of tokens accounted for will b
         // transfer the loan tokens from the lender to the contract
         IERC20(pools[poolId].loanToken).transferFrom(msg.sender, address(this), amount);
     }
-  ```
+```
 
-  Later, when the removeFromPool function is called, the protocol will transfer out the full accounted amount.
+- Later, when the removeFromPool function is called, the protocol will transfer out the full accounted amount.
   
   ```solidity
   function removeFromPool(bytes32 poolId, uint256 amount) external {
@@ -391,17 +391,17 @@ When the addToPool function is called, the amount of tokens accounted for will b
     }
   ```
   
-  **Impact:** 
+## **Impact:** 
 
-  If the protocol receives fewer tokens due to a transfer fee but later sends out the full accounted amount, it will effectively lose the amount of the transfer fee. In a high-volume environment or with large-value transactions, this could lead to substantial losses over time.
+- If the protocol receives fewer tokens due to a transfer fee but later sends out the full accounted amount, it will effectively lose the amount of the transfer fee. In a high-volume environment or with large-value transactions, this could lead to substantial losses over time.
 
-  **Tools Used:** 
+## **Tools Used:** 
 
-  Manual analysis
+- Manual analysis
 
-  **Recommendation:** 
+## **Recommendation:** 
 
-  To mitigate this vulnerability, we recommend checking the balance before and after each transfer to accurately account for any transfer fees. This could be done by comparing the balance of the contract before and after the transferFrom call, and then updating the accounted balance based on the actual change in balance, rather than the input amount.
+- To mitigate this vulnerability, we recommend checking the balance before and after each transfer to accurately account for any transfer fees. This could be done by comparing the balance of the contract before and after the transferFrom call, and then updating the accounted balance based on the actual change in balance, rather than the input amount.
 
 </details>
 

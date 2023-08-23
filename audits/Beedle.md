@@ -36,25 +36,25 @@ Oracle free peer to peer perpetual lending.
   
   <br>
 
-  **Severity:** 
+**Severity:** 
   
-  High
+- High
 
-  **Relevant GitHub Links:** 
+**Relevant GitHub Links:** 
 
-  https://github.com/Cyfrin/2023-07-beedle/blob/658e046bda8b010a5b82d2d85e824f3823602d27/src/Lender.sol#L591
+- https://github.com/Cyfrin/2023-07-beedle/blob/658e046bda8b010a5b82d2d85e824f3823602d27/src/Lender.sol#L591
 
-  **Summary:** 
+**Summary:** 
 
-  The refinance function in the Lender contract, which allows borrowers to refinance their loans, contains a double accounting error when updating the balances after a successful refinance.
+- The refinance function in the Lender contract, which allows borrowers to refinance their loans, contains a double accounting error when updating the balances after a successful refinance.
 
-  **Vulnerability Details:** 
+**Vulnerability Details:** 
 
- The refinance function erroneously updates the new lender's pool balance twice for the same loan debt.
+- The refinance function erroneously updates the new lender's pool balance twice for the same loan debt.
 
-For each refinance operation, the function validates the loan and new lender pool, calculates the new debt, updates the old and new lender's pool balances, and transfers any necessary tokens.
+- For each refinance operation, the function validates the loan and new lender pool, calculates the new debt, updates the old and new lender's pool balances, and transfers any necessary tokens.
 
-  ```solidity
+```solidity
   // update the old lenders pool
 _updatePoolBalance(oldPoolId, pools[oldPoolId].poolBalance + loan.debt + lenderInterest);
 pools[oldPoolId].outstandingLoans -= loan.debt;
@@ -62,25 +62,25 @@ pools[oldPoolId].outstandingLoans -= loan.debt;
 // now lets deduct our tokens from the new pool
 _updatePoolBalance(poolId, pools[poolId].poolBalance - debt);
 pools[poolId].outstandingLoans += debt;
-  ```
- During the refinancing process, the new lender's pool balance should be updated once to reflect the new loan debt. However, near the end of the function, the new lender's pool balance is reduced by the same loan debt again. This results in the new lender's pool balance being deducted twice for the same debt, essentially double-counting the debt.
-  ```solidity
+```
+- During the refinancing process, the new lender's pool balance should be updated once to reflect the new loan debt. However, near the end of the function, the new lender's pool balance is reduced by the same loan debt again. This results in the new lender's pool balance being deducted twice for the same debt, essentially double-counting the debt.
+```solidity
   pools[poolId].poolBalance -= debt;
-  ```
+```
   
-  **Impact:** 
+**Impact:** 
 
-  Severity: High. The new lender is charged double the amount of the actual loan debt.
+- Severity: High. The new lender is charged double the amount of the actual loan debt.
 
-Likelihood: High. The refinance function is a critical part of the protocol and is likely to be used frequently.
+- Likelihood: High. The refinance function is a critical part of the protocol and is likely to be used frequently.
 
-  **Tools Used:** 
+**Tools Used:** 
 
-  Manual analysis
+- Manual analysis
 
-  **Recommendation:** 
+**Recommendation:** 
 
-  The double accounting error can be rectified by removing the second balance update for the new lender's pool balance. This should ensure that the new lender's pool balance is only reduced by the loan debt once.
+- The double accounting error can be rectified by removing the second balance update for the new lender's pool balance. This should ensure that the new lender's pool balance is only reduced by the loan debt once.
 
 </details>
 
@@ -91,23 +91,23 @@ Likelihood: High. The refinance function is a critical part of the protocol and 
   
   <br>
 
-  **Severity:** 
+**Severity:** 
   
-  High
+- High
 
-  **Relevant GitHub Links:** 
+**Relevant GitHub Links:** 
 
-  [https://github.com/Cyfrin/2023-07-beedle/blob/658e046bda8b010a5b82d2d85e824f3823602d27/src/Lender.sol#L591](https://github.com/Cyfrin/2023-07-beedle/blob/658e046bda8b010a5b82d2d85e824f3823602d27/src/Fees.sol#L26)
+- [https://github.com/Cyfrin/2023-07-beedle/blob/658e046bda8b010a5b82d2d85e824f3823602d27/src/Lender.sol#L591](https://github.com/Cyfrin/2023-07-beedle/blob/658e046bda8b010a5b82d2d85e824f3823602d27/src/Fees.sol#L26)
 
-  **Summary:** 
+**Summary:** 
 
-  The sellProfits function, part of the Fees contract, is designed to swap tokens acquired from liquidations and fees for WETH. However, the function fails to approve the Uniswap v3 router to withdraw tokens from the contract. This oversight means the function will always revert, making it unusable. As noted in Uniswap's documentation, the contract must approve the router to withdraw the necessary tokens to execute the swap.
+- The sellProfits function, part of the Fees contract, is designed to swap tokens acquired from liquidations and fees for WETH. However, the function fails to approve the Uniswap v3 router to withdraw tokens from the contract. This oversight means the function will always revert, making it unusable. As noted in Uniswap's documentation, the contract must approve the router to withdraw the necessary tokens to execute the swap.
 
-  **Vulnerability Details:** 
+**Vulnerability Details:** 
 
- Here's the relevant part of the sellProfits function:
+ - Here's the relevant part of the sellProfits function:
 
-  ```solidity
+```solidity
   /// @notice swap loan tokens for collateral tokens from liquidations
 /// @param _profits the token to swap for WETH
     function sellProfits(address _profits) public {
@@ -131,17 +131,17 @@ Likelihood: High. The refinance function is a critical part of the protocol and 
     }
   ```
   
-  **Impact:** 
+**Impact:** 
 
-  High: The lack of approval prevents the sellProfits function from executing correctly, rendering it unusable.
+- High: The lack of approval prevents the sellProfits function from executing correctly, rendering it unusable.
 
-  **Tools Used:** 
+**Tools Used:** 
 
-  Manual analysis
+- Manual analysis
 
-  **Recommendation:** 
+**Recommendation:** 
 
-  Implement the necessary approve call within the sellProfits function to provide the Uniswap v3 router with the necessary permissions to withdraw the required tokens.
+- Implement the necessary approve call within the sellProfits function to provide the Uniswap v3 router with the necessary permissions to withdraw the required tokens.
 
 </details>
 

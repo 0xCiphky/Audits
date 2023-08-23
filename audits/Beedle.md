@@ -22,8 +22,10 @@ Oracle free peer to peer perpetual lending.
 | [H04](#h04---xxx) | Lack of Slippage Control in sellProfits function                              | High       |
 | [H05](#h05---xxx) | No Precision Scaling                             | High       |
 | [H06](#h06---xxx) | Inconsistent balance when tokens with fee on transfer are used                             | High       |
-| [M01](#m01---xxx) | XXX                              | Medium     |
-| [L01](#l01---xxx) | XXX                              | Low/Info   |
+| [M01](#m01---xxx) | Possible reentrancy for tokens with callbacks/hooks                              | Medium     |
+| [M02](#m02---xxx) | Lack of Deadline Control in sellProfits Function                             | Medium     |
+| [L01](#l01---xxx) | Loss of fees due to rounding direction                              | Low/Info   |
+| [L02](#l02---xxx) | Potential rounding error when computing interest                              | Low/Info   |
 
 ---
 
@@ -408,21 +410,124 @@ Let's illustrate this with an example:
 ---
 
 <details>
-  <summary><a id="m01---xxx"></a>[M01] - XXX</summary>
+  <summary><a id="m01---xxx"></a>[M01] - Possible reentrancy for tokens with callbacks/hooks</summary>
   
   <br>
 
-  **Severity:** Medium
+## **Severity:** 
+  
+  - Medium
 
-  **Summary:** 
+## **Relevant GitHub Links:** 
 
-  **Vulnerability Details:** 
+- https://github.com/Cyfrin/2023-07-beedle/blob/658e046bda8b010a5b82d2d85e824f3823602d27/src/Lender.sol#L548
 
-  **Impact:** 
+- https://github.com/Cyfrin/2023-07-beedle/blob/658e046bda8b010a5b82d2d85e824f3823602d27/src/Lender.sol#L355
 
-  **Tools Used:** 
+## **Summary:** 
 
-  **Recommendation:** 
+- The Beedle contract contains multiple functions that make several external calls, potentially allowing for a reentrancy attack.
+
+## **Vulnerability Details:** 
+
+Consider the following sequence of actions:
+
+- User A sets up a lending pool.
+- User B borrows from User A's lending pool.
+- User A attempts to seize the loan, which is not claimed in an auction.
+
+In this context, the seizeLoan function contains multiple external calls and only deletes the loan at the end of the function:
+
+```solidity
+function seizeLoan(uint256[] calldata loanIds) public {
+    ...
+    IERC20(loan.collateralToken).transfer(loan.lender, loan.collateral - govFee);
+    ...
+    delete loans[loanId];
+}
+```
+
+- During the execution of the seizeLoan function, User A could potentially reenter the giveLoan function if the conditions are right (for example, if the lender matches). This reentrancy would be possible because the loan is still considered valid until it is deleted at the end of the seizeLoan function.
+  
+- Subsequently, User A gives the loan away and their loan token balances are updated. This results in User A receiving both loan tokens and collateral tokens for the same loan, leading to an imbalance in the protocol's accounting.
+
+- The seizeloan call finishes and the loan gets deleted losing the lender who was given the loan funds
+
+- User A has now received loan tokens and collateral tokens for the same loan
+  
+## **Impact:** 
+
+- This reentrancy vulnerability could have a high impact, leading to a loss of funds for the protocol and users as well as an imbalance in the protocol's accounting. Depending on the specific circumstances and the extent of the reentrancy, this vulnerability could potentially render the protocol insolvent.
+
+## **Tools Used:** 
+
+- Manual analysis
+
+## **Recommendation:** 
+
+- To mitigate this vulnerability, we recommend adding reentrancy protections to functions that make external calls. One common solution is to use a reentrancy guard, such as the one provided by the OpenZeppelin library.
+
+</details>
+
+---
+
+<details>
+  <summary><a id="m02---xxx"></a>[M02] - Lack of Deadline Control in sellProfits Function</summary>
+  
+  <br>
+
+## **Severity:** 
+  
+  - Medium
+
+## **Relevant GitHub Links:** 
+
+- https://github.com/Cyfrin/2023-07-beedle/blob/658e046bda8b010a5b82d2d85e824f3823602d27/src/Fees.sol#L36
+
+## **Summary:** 
+
+- The sellProfits function in the Fees contract, used to swap tokens accrued from liquidations and fees for WETH, sets the deadline parameter for the swapExactInputSingle function in the Uniswap v3 router to block.timestamp. This means that transactions, once submitted, could be executed at any point in the future.
+
+## **Vulnerability Details:** 
+
+- This leaves the protocol vulnerable, where a malicious actor could deliberately delay a transaction until market conditions change in a way that is unfavourable to the protocol.
+
+The code snippet of the vulnerable function:
+
+```solidity
+/// @notice swap loan tokens for collateral tokens from liquidations
+/// @param _profits the token to swap for WETH
+    function sellProfits(address _profits) public {
+        require(_profits != WETH, "not allowed");
+        uint256 amount = IERC20(_profits).balanceOf(address(this));
+
+        ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams({
+            tokenIn: _profits,
+            tokenOut: WETH,
+            fee: 3000,
+            recipient: address(this),
+            deadline: block.timestamp,
+            amountIn: amount,
+            amountOutMinimum: 0,
+            sqrtPriceLimitX96: 0
+        });
+
+        amount = swapRouter.exactInputSingle(params);
+        IERC20(WETH).transfer(staking, IERC20(WETH).balanceOf(address(this)));
+    }
+```
+  
+## **Impact:** 
+
+- The lack of a deadline could potentially lead to unfavourable execution of transactions, resulting in potential loss for the protocol.
+
+## **Tools Used:** 
+
+- Manual analysis
+
+## **Recommendation:** 
+
+- Implement deadlines for the sellProfits function to prevent potential attacks.
 
 </details>
 
@@ -433,17 +538,94 @@ Let's illustrate this with an example:
   
   <br>
 
-  **Severity:** Low
+## **Severity:** 
+  
+  - Medium
 
-  **Summary:** 
+## **Relevant GitHub Links:** 
 
-  **Vulnerability Details:** 
+- 
 
-  **Impact:** 
+## **Summary:** 
 
-  **Tools Used:** 
+- 
 
-  **Recommendation:** 
+## **Vulnerability Details:** 
+
+- 
+
+- 
+
+```solidity
+
+```
+
+- 
+  
+```solidity
+
+```
+  
+## **Impact:** 
+
+- 
+
+## **Tools Used:** 
+
+- 
+
+## **Recommendation:** 
+
+- 
+
+</details>
+
+---
+
+<details>
+  <summary><a id="l02---xxx"></a>[L02] - XXX</summary>
+  
+  <br>
+
+## **Severity:** 
+  
+  - Medium
+
+## **Relevant GitHub Links:** 
+
+- 
+
+## **Summary:** 
+
+- 
+
+## **Vulnerability Details:** 
+
+- 
+
+- 
+
+```solidity
+
+```
+
+- 
+  
+```solidity
+
+```
+  
+## **Impact:** 
+
+- 
+
+## **Tools Used:** 
+
+- 
+
+## **Recommendation:** 
+
+- 
 
 </details>
 

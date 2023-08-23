@@ -31,17 +31,43 @@ This project is meant to enable smart contract auditors (sellers) and smart cont
   
   <br>
 
-  **Severity:** High
+## **Severity:** 
+  
+- High Risk
 
-  **Summary:** 
+## **Relevant GitHub Links:** 
 
-  **Vulnerability Details:** 
+- 
 
-  **Impact:** 
+## **Summary:** 
 
-  **Tools Used:** 
+- 
 
-  **Recommendation:** 
+## **Vulnerability Details:** 
+
+- 
+
+```solidity
+
+```
+
+- 
+  
+```solidity
+
+```
+  
+## **Impact:** 
+
+- 
+
+## **Tools Used:** 
+
+- 
+
+## **Recommendation:** 
+
+- 
 
 </details>
 
@@ -52,17 +78,43 @@ This project is meant to enable smart contract auditors (sellers) and smart cont
   
   <br>
 
-  **Severity:** Medium
+## **Severity:** 
 
-  **Summary:** 
+- Medium Risk
 
-  **Vulnerability Details:** 
+## **Relevant GitHub Links:** 
 
-  **Impact:** 
+- 
 
-  **Tools Used:** 
+## **Summary:** 
 
-  **Recommendation:** 
+- 
+
+## **Vulnerability Details:** 
+
+- 
+
+```solidity
+
+```
+
+- 
+  
+```solidity
+
+```
+  
+## **Impact:** 
+
+- 
+
+## **Tools Used:** 
+
+- 
+
+## **Recommendation:** 
+
+- 
 
 </details>
 
@@ -73,17 +125,43 @@ This project is meant to enable smart contract auditors (sellers) and smart cont
   
   <br>
 
-  **Severity:** Low
+## **Severity:** 
 
-  **Summary:** 
+- Low Risk
 
-  **Vulnerability Details:** 
+## **Relevant GitHub Links:** 
 
-  **Impact:** 
+- 
 
-  **Tools Used:** 
+## **Summary:** 
 
-  **Recommendation:** 
+- 
+
+## **Vulnerability Details:** 
+
+- 
+
+```solidity
+
+```
+
+- 
+  
+```solidity
+
+```
+  
+## **Impact:** 
+
+- 
+
+## **Tools Used:** 
+
+- 
+
+## **Recommendation:** 
+
+- 
 
 </details>
 

@@ -534,49 +534,56 @@ The code snippet of the vulnerable function:
 ---
 
 <details>
-  <summary><a id="l01---xxx"></a>[L01] - XXX</summary>
+  <summary><a id="l01---xxx"></a>[L01] - Loss of fees due to rounding direction</summary>
   
   <br>
 
 ## **Severity:** 
   
-  - Medium
+  - Low Risk
 
 ## **Relevant GitHub Links:** 
 
-- 
+- https://github.com/Cyfrin/2023-07-beedle/blob/658e046bda8b010a5b82d2d85e824f3823602d27/src/Lender.sol#L561
+
+- https://github.com/Cyfrin/2023-07-beedle/blob/658e046bda8b010a5b82d2d85e824f3823602d27/src/Lender.sol#L650
+
+- https://github.com/Cyfrin/2023-07-beedle/blob/658e046bda8b010a5b82d2d85e824f3823602d27/src/Lender.sol#L720
 
 ## **Summary:** 
 
-- 
+- The Lender contract's borrow function, along with various other functions, calculates protocol fees and other arithmetic operations using Solidity's integer division, which rounds down fractional results.
 
 ## **Vulnerability Details:** 
 
-- 
+- This rounding down can cause precision loss in multiple calculations, including the calculation of protocol fees, interest, and Gov fees.
 
-- 
 
 ```solidity
+// first we take our borrower fee
+uint256 fee = (borrowerFee * (debt - debtToPay)) / 10000;
 
-```
+function _calculateInterest(Loan memory l) internal view returns (uint256 interest, uint256 fees) {
+        uint256 timeElapsed = block.timestamp - l.startTimestamp;
+        interest = (l.interestRate * l.debt * timeElapsed) / 10000 / 365 days;
+        fees = (lenderFee * interest) / 10000;
+        interest -= fees;
+    }
 
-- 
-  
-```solidity
-
+uint256 govFee = (borrowerFee * loan.collateral) / 10000;
 ```
   
 ## **Impact:** 
 
-- 
+- The protocol could potentially lose a significant amount of fees over time due to this issue.
 
 ## **Tools Used:** 
 
-- 
+- Manual analysis
 
 ## **Recommendation:** 
 
-- 
+- Consider changing the rounding behaviour in the contract's arithmetic operations to round up instead of down in certain cases. This would ensure that the protocol always collects the maximum possible amount of fees and other amounts.
 
 </details>
 

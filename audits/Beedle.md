@@ -36,19 +36,19 @@ Oracle free peer to peer perpetual lending.
   
   <br>
 
-**Severity:** 
+## **Severity:** 
   
 - High
 
-**Relevant GitHub Links:** 
+## **Relevant GitHub Links:** 
 
 - https://github.com/Cyfrin/2023-07-beedle/blob/658e046bda8b010a5b82d2d85e824f3823602d27/src/Lender.sol#L591
 
-**Summary:** 
+## **Summary:** 
 
 - The refinance function in the Lender contract, which allows borrowers to refinance their loans, contains a double accounting error when updating the balances after a successful refinance.
 
-**Vulnerability Details:** 
+## **Vulnerability Details:** 
 
 - The refinance function erroneously updates the new lender's pool balance twice for the same loan debt.
 
@@ -70,17 +70,17 @@ pools[poolId].outstandingLoans += debt;
   pools[poolId].poolBalance -= debt;
 ```
   
-**Impact:** 
+## **Impact:** 
 
 - Severity: High. The new lender is charged double the amount of the actual loan debt.
 
 - Likelihood: High. The refinance function is a critical part of the protocol and is likely to be used frequently.
 
-**Tools Used:** 
+## **Tools Used:** 
 
 - Manual analysis
 
-**Recommendation:** 
+## **Recommendation:** 
 
 - The double accounting error can be rectified by removing the second balance update for the new lender's pool balance. This should ensure that the new lender's pool balance is only reduced by the loan debt once.
 
@@ -314,7 +314,7 @@ The code snippet of the vulnerable function:
 
 **Vulnerability Details:** 
 
-- lets look at an example
+lets look at an example
 
 - The borrow function in the given contract calculates a loanRatio to determine the risk associated with a loan based on the debt and collateral provided.
 

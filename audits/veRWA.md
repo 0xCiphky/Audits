@@ -26,64 +26,148 @@ The contracts implement a voting-escrow incentivization model for Canto RWA (Rea
 
 ## Detailed Findings
 
+### High Findings
+
 <details>
   <summary><a id="h01---xxx"></a>[H01] - XXX</summary>
   
   <br>
 
-  **Severity:** High
+## **Severity:** 
+  
+- High Risk
 
-  **Summary:** 
+## **Relevant GitHub Links:** 
 
-  **Vulnerability Details:** 
+- 
 
-  **Impact:** 
+## **Summary:** 
 
-  **Tools Used:** 
+- 
 
-  **Recommendation:** 
+## **Vulnerability Details:** 
+
+- 
+
+```solidity
+
+```
+
+- 
+  
+```solidity
+
+```
+  
+## **Impact:** 
+
+- 
+
+## **Tools Used:** 
+
+- 
+
+## **Recommendation:** 
+
+- 
 
 </details>
 
 ---
+
+### Medium Findings
 
 <details>
   <summary><a id="m01---xxx"></a>[M01] - XXX</summary>
   
   <br>
 
-  **Severity:** Medium
+## **Severity:** 
 
-  **Summary:** 
+- Medium Risk
 
-  **Vulnerability Details:** 
+## **Relevant GitHub Links:** 
 
-  **Impact:** 
+- 
 
-  **Tools Used:** 
+## **Summary:** 
 
-  **Recommendation:** 
+- 
+
+## **Vulnerability Details:** 
+
+- 
+
+```solidity
+
+```
+
+- 
+  
+```solidity
+
+```
+  
+## **Impact:** 
+
+- 
+
+## **Tools Used:** 
+
+- 
+
+## **Recommendation:** 
+
+- 
 
 </details>
 
 ---
+
+### Low Findings
 
 <details>
   <summary><a id="l01---xxx"></a>[L01] - XXX</summary>
   
   <br>
 
-  **Severity:** Low
+## **Severity:** 
 
-  **Summary:** 
+- Low Risk
 
-  **Vulnerability Details:** 
+## **Relevant GitHub Links:** 
 
-  **Impact:** 
+- 
 
-  **Tools Used:** 
+## **Summary:** 
 
-  **Recommendation:** 
+- 
+
+## **Vulnerability Details:** 
+
+- 
+
+```solidity
+
+```
+
+- 
+  
+```solidity
+
+```
+  
+## **Impact:** 
+
+- 
+
+## **Tools Used:** 
+
+- 
+
+## **Recommendation:** 
+
+- 
 
 </details>
 

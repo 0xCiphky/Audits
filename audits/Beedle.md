@@ -27,6 +27,8 @@ Oracle free peer to peer perpetual lending.
 
 ## Detailed Findings
 
+### High Findings
+
 <details>
   <summary><a id="h01---xxx"></a>[H01] - Refinance function contains a double accounting error</summary>
   
@@ -405,6 +407,8 @@ Let's illustrate this with an example:
 
 ---
 
+### Medium Findings
+
 <details>
   <summary><a id="m01---xxx"></a>[M01] - Possible reentrancy for tokens with callbacks/hooks</summary>
   
@@ -528,6 +532,8 @@ The code snippet of the vulnerable function:
 </details>
 
 ---
+
+### Low Findings
 
 <details>
   <summary><a id="l01---xxx"></a>[L01] - Loss of fees due to rounding direction</summary>

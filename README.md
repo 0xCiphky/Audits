@@ -17,3 +17,4 @@
 8. [**Beedle - Oracle Free Perpetual Lending**](https://github.com/areezladhani/Audits/blob/main/audits/Beedle.md)
 9. [**veRWA - Voting-Escrow**](https://github.com/areezladhani/Audits/blob/main/audits/veRWA.md)
 
+*For more information or inquiries, please contact [areezladhani21@gmail.com](mailto:areezladhani21@gmail.com).*

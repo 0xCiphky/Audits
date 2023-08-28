@@ -6,10 +6,6 @@ This project is meant to enable smart contract auditors (sellers) and smart cont
 
 ---
 
-## Scope
-
----
-
 ## Findings Summary
 
 | ID  | Title                            | Severity   |

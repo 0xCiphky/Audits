@@ -233,7 +233,4 @@ function newEscrow(
 
 ---
 
-
-- 
-
 </details>

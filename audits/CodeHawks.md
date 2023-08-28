@@ -16,7 +16,7 @@ This project is meant to enable smart contract auditors (sellers) and smart cont
 |-----|----------------------------------|------------|
 | [H01](#h01---xxx) | A permanent revert on transfer among any of the participants in the resolveDispute function could lead to all funds being stuck in the contract                              | High       |
 | [M01](#m01---xxx) | Fee on transfer tokens will not be supported                              | Medium     |
-| [M02](#m02---xxx) | XXX                              | Medium     |
+| [M02](#m02---xxx) | Lack of input validation in newEscrow function                              | Medium     |
 
 ---
 
@@ -180,51 +180,60 @@ if (tokenContract.balanceOf(address(this)) < price) revert Escrow__MustDeployWit
 
 ---
 
-### Low Findings
-
 <details>
-  <summary><a id="l01---xxx"></a>[L01] - XXX</summary>
+  <summary><a id="m02---xxx"></a>[M02] - Lack of input validation in newEscrow function</summary>
   
   <br>
 
 ## **Severity:** 
 
-- Low Risk
+- Medium Risk
 
 ## **Relevant GitHub Links:** 
 
-- 
+- https://github.com/Cyfrin/2023-07-escrow/blob/65a60eb0773803fa0be4ba72defaec7d8567bccc/src/EscrowFactory.sol#L20
 
 ## **Summary:** 
 
-- 
+- The newEscrow function lacks input validation checks
+
+	- The arbiter address should be validated to ensure it is not the same as the buyer or seller address. The arbiter is expected to be an impartial, trusted actor who can resolve disputes between the buyer and seller. If the arbiter is also the buyer or seller, this impartiality is compromised.
 
 ## **Vulnerability Details:** 
 
-- 
-
-```solidity
-
-```
-
-- 
-  
-```solidity
-
-```
+- If the arbiter is also the buyer or seller, it could lead to disputes being resolved unfairly. This is contrary to the intended role of the arbiter as an impartial third party.
   
 ## **Impact:** 
 
-- 
+- The lack of these input validations could lead to disputes being unfairly resolved
 
 ## **Tools Used:** 
 
-- 
+- Manual analysis
 
 ## **Recommendation:** 
+
+- To mitigate these issues, consider adding the following validation checks in the newEscrow function:
+
+```solidity
+function newEscrow(
+    uint256 price,
+    IERC20 tokenContract,
+    address seller,
+    address arbiter,
+    uint256 arbiterFee,
+    bytes32 salt
+) external returns (IEscrow) {
+    require(arbiter != buyer && arbiter != seller, "Arbiter must be different from buyer and seller");
+    
+    // rest of the function code
+}
+```
+</details>
+
+---
+
 
 - 
 
 </details>
-
----

@@ -1,9 +1,5 @@
 # CodeHawks - Escrow Contract
 
-The audit report will be updated with the findings as soon as the CodeHawks team finalizes and releases their report.
-
----
-
 ## About
 
 This project is meant to enable smart contract auditors (sellers) and smart contract protocols looking for audits (buyers) to connect using a credibly neutral option, with optional arbitration.

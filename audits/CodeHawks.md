@@ -15,7 +15,7 @@ This project is meant to enable smart contract auditors (sellers) and smart cont
 | ID  | Title                            | Severity   |
 |-----|----------------------------------|------------|
 | [H01](#h01---xxx) | A permanent revert on transfer among any of the participants in the resolveDispute function could lead to all funds being stuck in the contract                              | High       |
-| [M01](#m01---xxx) | XXX                              | Medium     |
+| [M01](#m01---xxx) | Fee on transfer tokens will not be supported                              | Medium     |
 | [M02](#m02---xxx) | XXX                              | Medium     |
 
 ---
@@ -132,7 +132,7 @@ function arbiterClaim() external inState(State.resolved) {
 ### Medium Findings
 
 <details>
-  <summary><a id="m01---xxx"></a>[M01] - XXX</summary>
+  <summary><a id="m01---xxx"></a>[M01] - Fee on transfer tokens will not be supported</summary>
   
   <br>
 
@@ -142,37 +142,39 @@ function arbiterClaim() external inState(State.resolved) {
 
 ## **Relevant GitHub Links:** 
 
-- 
+- https://github.com/Cyfrin/2023-07-escrow/blob/65a60eb0773803fa0be4ba72defaec7d8567bccc/src/EscrowFactory.sol#L20
+
+- https://github.com/Cyfrin/2023-07-escrow/blob/65a60eb0773803fa0be4ba72defaec7d8567bccc/src/Escrow.sol#L44
 
 ## **Summary:** 
 
-- 
+- The current implementation of the escrow contract does not support tokens that take a fee on transfer. This is because the contract checks if the balance of the contract is greater then the specified price parameter, which will not be the case for tokens that deduct a fee on transfer.
+
+- While this is not an issue at the present time, as many widely-used tokens do not charge a fee, it could become a significant constraint in the future. If popular tokens (such as USDT and USDC) decide to implement a transfer fee, the protocol's regular usability would be severely limited. Consequently, the protocol's user base could be greatly reduced.
 
 ## **Vulnerability Details:** 
 
-- 
+- In the escrow contracts constructor, a check is performed to ensure that the balance of the escrow contract matches or is greater then the specified price. However, for tokens that deduct a fee on transfer, the balance will be less than the price, causing the function to revert. This effectively means that tokens which employ a transfer fee cannot be used with the current contract implementation.
 
 ```solidity
-
-```
-
-- 
-  
-```solidity
-
+if (tokenContract.balanceOf(address(this)) < price) revert Escrow__MustDeployWithTokenBalance();
 ```
   
 ## **Impact:** 
 
-- 
+- It will not be possible to use fee on transfer tokens regularly within the protocol
 
 ## **Tools Used:** 
 
-- 
+- Manual analysis
 
 ## **Recommendation:** 
 
-- 
+- To address this issue, you could modify the contract to accommodate fee-on-transfer tokens.
+
+- Alternatively, If accommodating fee-on-transfer tokens is not a priority, it would be helpful to clearly document this limitation in the contract comments and any user-facing documentation.
+
+- One work around on the user side would be to have them send extra tokens to the precomputed address before calling the newEscrow function
 
 </details>
 

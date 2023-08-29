@@ -4,6 +4,46 @@
 
 This project is meant to enable smart contract auditors (sellers) and smart contract protocols looking for audits (buyers) to connect using a credibly neutral option, with optional arbitration.
 
+<details>
+  <summary>Contract Overview</summary>
+
+### Actors
+
+- Buyer: The purchaser of services, in this scenario, a project purchasing an audit.
+- Seller: The seller of services, in this scenario, an auditor willing to audit a project.
+- Arbiter: An impartial, trusted actor who can resolve disputes between the Buyer and Seller.​Design considerations
+- The Arbiter is only compensated the arbiterFee amount if a dispute occurs.
+- Once a dispute has been initiated it can not be canceled.
+- ERC777 tokens should not be used as tokens for the Escrow contract given that it enables a malicious buyer to DOS Escrow::resolveDispute
+- In case a smart contract calls EscrowFactory::newEscrow, given that the caller of this contract is in control of the salt, frontrunning is a possibility.​
+
+### Workflows
+
+Create an Escrow
+
+- Buyer approves the payment contract to be handled by EscrowFactory.
+- Buyer calls EscrowFactory::newEscrow, inputs:
+	- The price.
+	- The payment token.
+	- The seller (auditor or person in charge of the audit).
+	Arbiter.
+	- Arbiter fee: Fee to pay in case of a dispute is initialized.
+	- Salt: for create2 Escrow deployment.
+
+Expected sucessful workflow
+
+- The buyer creates an Escrow contract through EscrowFactory::newEscrow, depositing the funds.
+- The seller sends the buyer the report (off-chain).
+- The buyer acknowledges this report on-chain by calling Escrow::confirmReceipt. This sends the funds to the seller.
+
+​Expected dispute workflow
+
+- The buyer creates an Escrow contract through EscrowFactory::newEscrow, depositing the funds.
+- For any reason, the buyer or the seller can initiate a dispute through Escrow::initiateDispute.
+- The arbiter confers with both parties offchain. Arbiter then calls Escrow::resolveDispute, reimbursing either side accordingly, emptying the Escrow.​
+  
+</details>
+
 ---
 
 ## Findings Summary

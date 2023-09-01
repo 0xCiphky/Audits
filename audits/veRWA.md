@@ -75,6 +75,53 @@ The contracts implement a voting-escrow incentivization model for Canto RWA (Rea
 
 ---
 
+<details>
+  <summary><a id="h02---xxx"></a>[H02] - XXX</summary>
+  
+  <br>
+
+## **Severity:** 
+  
+- High Risk
+
+## **Relevant GitHub Links:** 
+
+- 
+
+## **Summary:** 
+
+- 
+
+## **Vulnerability Details:** 
+
+- 
+
+```solidity
+
+```
+
+- 
+  
+```solidity
+
+```
+  
+## **Impact:** 
+
+- 
+
+## **Tools Used:** 
+
+- 
+
+## **Recommendation:** 
+
+- 
+
+</details>
+
+---
+
 ### Low Findings
 
 <details>

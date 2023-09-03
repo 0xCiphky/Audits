@@ -10,10 +10,6 @@ The contracts implement a voting-escrow incentivization model for Canto RWA (Rea
 
 ---
 
-## Scope
-
----
-
 ## Findings Summary
 
 | ID  | Title                            | Severity   |

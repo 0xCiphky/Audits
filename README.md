@@ -9,11 +9,11 @@
 
 ### July 2023
 4. [**Csens - NFT, ERC20 Token**](https://github.com/areezladhani/Audits/blob/main/audits/HashlockPending.md)
-5. [**Horse-Link - Marketplace**](https://github.com/areezladhani/Audits/blob/main/audits/HashlockPending.md)
+5. [**Horselink - Marketplace**](https://github.com/areezladhani/Audits/blob/main/audits/HashlockPending.md)
 
 ### August 2023
 6. [**Redbelly Network - Blockchain**](https://github.com/areezladhani/Audits/blob/main/audits/HashlockPending.md)
-7. [**CodeHawks - Escrow Contract**](https://github.com/areezladhani/Audits/blob/main/audits/CodeHawks.md)
+7. [**Codehawks - Escrow Contract**](https://github.com/areezladhani/Audits/blob/main/audits/CodeHawks.md)
 8. [**Beedle - Oracle Free Perpetual Lending**](https://github.com/areezladhani/Audits/blob/main/audits/Beedle.md)
 9. [**veRWA - Voting-Escrow**](https://github.com/areezladhani/Audits/blob/main/audits/veRWA.md)
 

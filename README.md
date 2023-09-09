@@ -1,5 +1,9 @@
 # Smart Contract Audits
 
+[Visit My Profile on Code4Rena](https://code4rena.com/@0xCiphky)
+
+[Visit My Profile on CodeHawks](https://www.codehawks.com/profile/clkrx20ym0000ju088s337njb)
+
 ## Audit Reports
 
 ### June 2023

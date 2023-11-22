@@ -27,4 +27,4 @@
 10. [**Dopex - Decentralized Options Exchange**](https://github.com/areezladhani/Audits/blob/main/audits/Dopex.md)
 11. [**Chainlink Staking v0.2 - Staking**](https://github.com/areezladhani/Audits/blob/main/audits/Temp.md)
 
-*For more information or inquiries, please contact [areezladhani21@gmail.com](mailto:areezladhani21@gmail.com)*
+

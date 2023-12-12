@@ -2,6 +2,8 @@
 
 ---
 
+[Contest Result: 6th Place (2H/1M/9L)](https://www.codehawks.com/contests/clm871gl00001mp081mzjdlwc)
+
 ## About
 
 The system mints pegged assets (stablecoins) using an orderbook, using over-collateralized staked ETH.

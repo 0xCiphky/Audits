@@ -709,7 +709,7 @@ Ensure the flag is reset when a user fully pays off their short, so if it was th
 
 ```solidity
     if (buyBackAmount == ercDebt) {
-            // initial code
+        // initial code
 
 	// reset flag here
 	short.maybeResetFlag(asset);
@@ -837,8 +837,8 @@ if (m.short.ercDebt == m.ercDebtMatched) {
                 s.vaultUser[m.vault][m.shorter].ethEscrowed += m.short.collateral;
                 s.vaultUser[m.vault][address(this)].ethEscrowed -= m.short.collateral;
 
-			// reset flag here
-			short.resetFlag()
+		// reset flag here
+		short.resetFlag()
             }
 ```
 
@@ -954,7 +954,7 @@ if (m.short.ercDebt == m.ercDebtMatched) {
 - Ensure the flag is reset when a user fully pays off their short, so if it was a partial short a user will not start of with a healthy position flagged when the rest gets matched.
 ```solidity
     	if (buyBackAmount == ercDebt) {
-                // initial code
+		// initial code
 
 		// reset flag here
 		short.resetFlag()
@@ -1133,7 +1133,7 @@ function combineShorts(address asset, uint8[] memory ids)
 
          // code in between
 		
-		onlyValidShortRecord(asset, msg.sender, ids[0]) //added check
+	onlyValidShortRecord(asset, msg.sender, ids[0]) //added check
 
         // Merge all short records into the short at position id[0]
         firstShort.merge(ercDebt, ercDebtSocialized, collateral, yield, c.shortUpdatedAt);
@@ -1206,11 +1206,11 @@ function createLimitShort(
         uint16[] memory shortHintArray,
         uint16 initialCR
     ) external isNotFrozen(asset) onlyValidAsset(asset) nonReentrant {
-				...
-				if (Asset.initialMargin > initialCR || cr >= Constants.CRATIO_MAX) {
+		...
+		if (Asset.initialMargin > initialCR || cr >= Constants.CRATIO_MAX) {
             revert Errors.InvalidInitialCR();
         }
-				...
+		...
 	}
 ```
 
@@ -1221,10 +1221,10 @@ function increaseCollateral(address asset, uint8 id, uint88 amount)
         nonReentrant
         onlyValidShortRecord(asset, msg.sender, id)
     {
-				...
-				if (cRatio >= Constants.CRATIO_MAX) revert Errors.CollateralHigherThanMax();
-				...
-		}
+		...
+		if (cRatio >= Constants.CRATIO_MAX) revert Errors.CollateralHigherThanMax();
+		...
+    }
 ```
 
 **Vulnerability Details:** 

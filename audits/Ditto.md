@@ -361,7 +361,7 @@ if (timeDiff > LibAsset.secondLiquidationTime(cusd)) {
 ---
 
 <details>
-  <summary><a id="m01---xxx"></a>[M01] - XXX</summary>
+  <summary><a id="m01---xxx"></a>[M01] - Combining shorts can incorrectly reset the shorts flag</summary>
   
   <br>
 
@@ -369,13 +369,89 @@ if (timeDiff > LibAsset.secondLiquidationTime(cusd)) {
 
   **Summary:** 
 
+  The protocol allows users to combine multiple short positions into one as long as the combined short stays above the primary collateral ratio. The function is also able to reset an active flag from any of the combined shorts if the final ratio is above the primaryLiquidationCR.
+
+The issue is that the combineShorts function does not call updateErcDebt, which is called in every other function that is able to reset a shorts flag. This means that if the debt is outdated the final combined short could incorrectly reset the flag putting the position on a healthy ratio when it really isn’t. This would also mean that it will have to be reflagged and go through the timer again before it can be liquidated.
+
   **Vulnerability Details:** 
+
+  The combine shorts function merges all short records into the short at position id[0]. Focusing on the debt aspect it adds up the total debt and calculates the ercDebtSocialized of all positions except for the first.
+
+```solidity
+      {
+      uint88 currentShortCollateral = currentShort.collateral;
+      uint88 currentShortErcDebt = currentShort.ercDebt;
+      collateral += currentShortCollateral;
+      ercDebt += currentShortErcDebt;
+      yield += currentShortCollateral.mul(currentShort.zethYieldRate);
+      ercDebtSocialized += currentShortErcDebt.mul(currentShort.ercDebtRate);
+      }
+```
+
+It then merges this total to the first position using the merge function and this will give us the combined short.
+
+```solidity
+// Merge all short records into the short at position id[0]
+        firstShort.merge(ercDebt, ercDebtSocialized, collateral, yield, c.shortUpdatedAt);
+```
+
+Finally we check if the position had an active flag and if it did, we check if the new combined short is in a healthy enough state to reset the flag, if not the whole function reverts.
+
+```solidity
+        // If at least one short was flagged, ensure resulting c-ratio > primaryLiquidationCR
+        if (c.shortFlagExists) {
+            if (
+                firstShort.getCollateralRatioSpotPrice(
+                    LibOracle.getSavedOrSpotOraclePrice(_asset)
+                ) < LibAsset.primaryLiquidationCR(_asset)
+            ) revert Errors.InsufficientCollateral();
+            // Resulting combined short has sufficient c-ratio to remove flag
+            firstShort.resetFlag();
+        }
+```
+
+As you can see the updateErcDebt function is not called anywhere in the function meaning the flag could be reset with outdated values.
 
   **Impact:** 
 
+  A short could have its flag incorrectly reset and reset the timer. This is not good for the protocol as it will have a unhealthy short for a longer time.
+
   **Tools Used:** 
 
+  - Manual analysis
+  - Foundry
+
   **Recommendation:** 
+
+  Call updateErcDebt on the short once it is combined in the combineShorts function to ensure the collateral ratio is calculated with the most up to date values.
+
+```solidity
+    function combineShorts(address asset, uint8[] memory ids)
+        external
+        isNotFrozen(asset)
+        nonReentrant
+        onlyValidShortRecord(asset, msg.sender, ids[0])
+    {
+        // Initial code
+
+        // Merge all short records into the short at position id[0]
+        firstShort.merge(ercDebt, ercDebtSocialized, collateral, yield, c.shortUpdatedAt);
+
+        firstShort.updateErcDebt(asset); // update debt here before checking flag
+
+        // If at least one short was flagged, ensure resulting c-ratio > primaryLiquidationCR
+        if (c.shortFlagExists) {
+            if (
+                firstShort.getCollateralRatioSpotPrice(
+                    LibOracle.getSavedOrSpotOraclePrice(_asset)
+                ) < LibAsset.primaryLiquidationCR(_asset)
+            ) revert Errors.InsufficientCollateral();
+            // Resulting combined short has sufficient c-ratio to remove flag
+            firstShort.resetFlag();
+        }
+        emit Events.CombineShorts(asset, msg.sender, ids);
+    }
+```
 
 </details>
 

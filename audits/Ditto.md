@@ -1244,21 +1244,40 @@ Update the condition to use the **`>`** operator instead of **`≥`**, allowing 
 </details>
 
 <details>
-  <summary><a id="l09---xxx"></a>[L09] - XXX</summary>
+  <summary><a id="l09---xxx"></a>[L09] - Event in secondaryLiquidation could be misused to show false liquidations</summary>
   
   <br>
 
-  **Severity:** Low
+**Severity:** Low
 
-  **Summary:** 
+**Summary:** 
 
-  **Vulnerability Details:** 
+  The **`liquidateSecondary`** function in the protocol is designed to emit events detailing the specifics of liquidation, which can be crucial for other protocols or front-end integrations that track secondary liquidations within the protocol. One of the values emitted is **`batches`**, which indicates which positions got liquidated. However the function emits the **`batches`** array as it initially receives it, even though it may skip positions that are not eligible for liquidation during its execution. This implies that the emitted event could represent incorrect data, indicating positions as liquidated even if they were not, due to their ineligibility.
 
-  **Impact:** 
+```solidity
+function liquidateSecondary(
+        address asset,
+        MTypes.BatchMC[] memory batches,
+        uint88 liquidateAmount,
+        bool isWallet
+    ) external onlyValidAsset(asset) isNotFrozen(asset) nonReentrant {
+        // Initial code
 
-  **Tools Used:** 
+        emit Events.LiquidateSecondary(asset, batches, msg.sender, isWallet);
+    }
+```
 
-  **Recommendation:** 
+**Vulnerability Details/Impact:** 
+
+This inconsistency in the emitted event data can lead to incorrect data, indicating positions as liquidated even if they were not.
+
+**Tools Used:** 
+
+Manual Analysis
+
+**Recommendation:** 
+
+Modify the **`batches`** array before emitting it in the event, ensuring it accurately reflects the positions that were actually liquidated.
 
 </details>
 

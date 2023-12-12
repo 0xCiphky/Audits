@@ -19,7 +19,7 @@
 ### CodeHawks
 1. [**Codehawks - Escrow Contract**](https://github.com/areezladhani/Audits/blob/main/audits/CodeHawks.md)
 2. [**Beedle - Oracle Free Perpetual Lending**](https://github.com/areezladhani/Audits/blob/main/audits/Beedle.md)
-4. [**Ditto**]((https://github.com/0xCiphky/Audits/blob/main/audits/Ditto.md))
+4. [**Ditto**](https://github.com/0xCiphky/Audits/blob/main/audits/Ditto.md)
 5. [**Steadefi**](https://github.com/0xCiphky/Audits/blob/main/audits/Steadefi.md)
 
 ### Code4rena

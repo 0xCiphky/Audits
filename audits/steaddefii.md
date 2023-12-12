@@ -255,21 +255,78 @@ function processWithdrawFailure(
 ---
 
 <details>
-  <summary><a id="m01---xxx"></a>[M01] - XXX</summary>
+  <summary><a id="m01---xxx"></a>[M01] - emergencyPause/emergencyResume functions don’t let keeper adjust the slippage</summary>
   
   <br>
 
-  **Severity:** Medium
+**Severity:** Medium
 
-  **Summary:** 
+**Summary:** 
 
-  **Vulnerability Details:** 
+The protocol implements an emergencyPause function to be called by approved Keepers in an emergency situation. This function is designed to convert all liquidity pool tokens back to the underlying assets and hold them in the vault, also pausing all vault activities, including asset deposits, borrows, or rebalancing. However, the function fails to allow keepers to adjust the slippage that will be used when converting all liquidity pool tokens back to the underlying assets opening the door for MEV attacks.
 
-  **Impact:** 
+**Vulnerability Details:** 
 
-  **Tools Used:** 
+The emergencyPause function is called by keepers in an emergency situation, this will call GMXManager.removeLiquidity which withdraws the protocol's liquidity from the pool without allowing for slippage adjustment
 
-  **Recommendation:** 
+```solidity
+// contract GMXVault
+function emergencyPause() external payable onlyKeeper {
+        GMXEmergency.emergencyPause(_store);
+    }
+
+// library GMXEmergency
+function emergencyPause(
+    GMXTypes.Store storage self
+  ) external {
+    self.refundee = payable(msg.sender);
+
+    GMXTypes.RemoveLiquidityParams memory _rlp;
+
+    // Remove all of the vault's LP tokens
+    _rlp.lpAmt = self.lpToken.balanceOf(address(this));
+    _rlp.executionFee = msg.value;
+
+    GMXManager.removeLiquidity(
+      self,
+      _rlp
+    );
+
+    self.status = GMXTypes.Status.Paused;
+
+    emit EmergencyPause();
+  }
+```
+
+When liquidity is added in GMXManager.addLiquidity the minMarketTokens parameter will be zero (default value). 
+
+When liquidity is removed in GMXManager.removeLiquidity the minLongTokenAmount and minShortTokenAmount will also be set to zero (default value).
+
+**Impact:** 
+
+A malicious actor can sandwich the **`emergencyPause`** function, leading to significant losses for the protocol.
+
+Similarly, the **`emergencyResume`** function is also susceptible to this issue when it attempts to add liquidity back into the pool without slippage adjustments.
+
+**Tools Used:** 
+
+Manual analysis
+
+**Recommendation:** 
+
+The **`emergencyPause`** and **`emergencyResume`** functions should be modified to include a slippage parameter that Keepers can adjust during each call.
+
+```solidity
+function emergencyPause(uint256 slippage) external payable onlyKeeper {
+        GMXEmergency.emergencyPause(_store, slippage);
+    }
+```
+
+```solidity
+function emergencyResume(uint256 slippage) external payable onlyOwner {
+        GMXEmergency.emergencyResume(_store, slippage);
+    }
+```
 
 </details>
 

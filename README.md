@@ -2,7 +2,7 @@
 
 ### Visit My Profile
 
-- [Code4Rena](https://code4rena.com/@0xCiphky)
+- [Code4rena](https://code4rena.com/@0xCiphky)
 
 - [CodeHawks](https://www.codehawks.com/profile/clkrx20ym0000ju088s337njb)
 

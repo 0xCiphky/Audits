@@ -99,7 +99,7 @@ function processDepositCancellation(GMXTypes.Store storage self) external {
             (bool success,) = self.depositCache.user.call{value: address(this).balance}("");
         } else {
 	      
-		...
+            ...
     }
 ```
 

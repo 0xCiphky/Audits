@@ -595,7 +595,7 @@ if (m.short.ercDebt == m.ercDebtMatched) {
 </details>
 
 <details>
-  <summary><a id="l02---xxx"></a>[L02] - XXX</summary>
+  <summary><a id="l02---xxx"></a>[L02] - Last short does not reset liquidation flag after user exits position fully, meaning healthy position will still be flagged if another order gets filled</summary>
   
   <br>
 
@@ -603,13 +603,116 @@ if (m.short.ercDebt == m.ercDebtMatched) {
 
   **Summary:** 
 
-  **Vulnerability Details:** 
+  - The protocol permits users to maintain up to 254 concurrent short records. When this limit is reached, any additional orders are appended to the final position, rather than creating a new one.
+- A short record is flagged if it falls below the primary liquidation ratio set by the protocol, signalling to the user that their position is nearing an unhealthy state. The user can resolve this by modifying the position to improve its health or by paying off the short and exiting the position.
+- A vulnerability exists where, under specific circumstances, a user’s healthy position is flagged and can be instantly liquidated without warning.
 
-  **Impact:** 
+  **Vulnerability Details:**
 
-  **Tools Used:** 
+  - Consider the following scenario
+    1. User A creates a short order, that gets matched and fills in the last short (ID 254).
+    2. User A’s position falls below the primary liquidation ratio and is flagged.
+    3. User A calls **`exitShortErcEscrowed`** to pay off the position.
+        1. The full amount was paid off but maybeResetFlag is not called.
+    4. Another short order gets filled at a healthy ratio, creating the same short record (ID 254).
 
-  **Recommendation:** 
+<details>
+  <summary><b>Click to expand Proof of Concept</b></summary>
+
+  ```solidity
+    function testLastShortFExitPShort() public {
+        skipTimeAndSetEth(2 hours, 4000 ether);
+        // fill up shorts (up to 253)
+        for (uint256 i; i < 252; i++) {
+            fundLimitShortOpt(DEFAULT_PRICE, DEFAULT_AMOUNT, sender);
+            fundLimitBidOpt(DEFAULT_PRICE, DEFAULT_AMOUNT, receiver);
+        }
+
+        // Create short 254
+        fundLimitShortOpt(DEFAULT_PRICE, DEFAULT_AMOUNT , sender);
+
+        // create bid for short
+        fundLimitBidOpt(DEFAULT_PRICE, DEFAULT_AMOUNT, receiver);
+
+        //get short
+        STypes.ShortRecord memory shortBeforeFlag = getShortRecord(sender, 254);
+
+        //check short flag
+        assertEq(shortBeforeFlag.flaggerId, 0);
+
+        // fall in price
+        skipTimeAndSetEth(2 hours, 2000 ether);
+
+        // flag short
+        vm.prank(extra);
+        diamond.flagShort(asset, sender, 254, Constants.HEAD);
+
+        //get short
+        STypes.ShortRecord memory shortAfterFlag = getShortRecord(sender, 254);
+        //check short flag
+        assertGt(shortAfterFlag.flaggerId, 0);
+
+        // exit short
+        exitShortErcEscrowed(254, DEFAULT_AMOUNT, sender);
+
+        //get short
+        STypes.ShortRecord memory shortAfterExit = getShortRecord(sender, 254);
+        //check short flag
+        assertGt(shortAfterExit.flaggerId, 0);
+
+        //price recover back to initial
+        skipTimeAndSetEth(2 hours, 4000 ether);
+
+        // Create short 254
+        fundLimitShortOpt(DEFAULT_PRICE, DEFAULT_AMOUNT , sender);
+
+        // create bid for short
+        fundLimitBidOpt(DEFAULT_PRICE, DEFAULT_AMOUNT, receiver);
+        //get short
+        STypes.ShortRecord memory shortAfterMatch = getShortRecord(sender, 254);
+
+        //check short flag
+        assertGt(shortAfterMatch.flaggerId, 0);
+
+        //price fall
+        skipTimeAndSetEth(11 hours, 2000 ether);
+        fundLimitAskOpt(DEFAULT_PRICE, DEFAULT_AMOUNT, extra);
+
+        // liquidate short
+        vm.prank(extra);
+        diamond.liquidate(asset, sender, 254, shortHintArrayStorage);
+    }
+```
+</details>
+
+**Impact:** 
+
+- A healthy short is incorrectly flagged.
+- If the new short falls below the primary liquidation ratio:
+  - It cannot be flagged by another user until updatedAt (when short was filled) plus the reset time is reached.
+  - It can be liquidated after updatedAt (when short was filled) plus the firstLiquidationTime till resetLiquidationTime even if it was never flagged.
+  - Keep in mind the shorts updatedAt will be updated when the short gets filled so this will push the liquidation times up by the time diff (fillShort - flagged).
+- The protocol gives users a grace period to reestablish their positions when they fall below the primary liquidation ratio, however in the following situation a user can be liquidated without warning (being flagged).
+- A user is also unable to use certain protocol functionality (e.g. transfer his short).
+
+**Tools Used:** 
+- Manual Analysis
+- Foundry
+
+**Recommendation:** 
+
+The flag needs to be checked in all three exit functions: **`exitShortWallet`**, **`exitShortErcEscrowed`**, and **`exitShort`**, when a short record is fully paid.
+
+Ensure the flag is reset when a user fully pays off their short, so if it was the last short a user will not start of with a healthy position flagged when a new short gets matched at that spot.
+
+```solidity
+    if (buyBackAmount == ercDebt) {
+            // initial code
+
+	// reset flag here
+	short.maybeResetFlag(asset);
+	}
+```
 
 </details>
 

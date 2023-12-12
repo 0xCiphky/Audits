@@ -271,13 +271,90 @@ function createShortRecord(
 
   **Summary:** 
 
+  The protocol enables users to flag positions that fall below the primary collateral ratio. Subsequently, the shorter is granted a time frame to restore their position above this ratio to avoid liquidation. If the position remains below the primary collateral ratio, the flagger attains the exclusive right to liquidate it before anyone else.
+
   **Vulnerability Details:** 
+
+  To optimize the process, the protocol reuses flagger IDs. However, a flaw exists in the protocol where a flagger ID is available for reuse after the firstLiquidationTime instead of after the secondLiquidationTime.
+
+```solidity
+//@dev re-use an inactive flaggerId
+if (timeDiff > LibAsset.firstLiquidationTime(cusd)) {
+   delete s.assetUser[cusd][flaggerToReplace].g_flaggerId;
+   short.flaggerId = flagStorage.g_flaggerId = flaggerHint;
+```
+
+This premature reuse of the flagger ID can block a flagger from liquidating a position during their allocated slot, which spans between firstLiquidationTime and secondLiquidationTime.
+
+```solidity
+uint256 secondLiquidationTime = LibAsset.secondLiquidationTime(m.asset);
+            bool isBetweenFirstAndSecondLiquidationTime = timeDiff
+                > LibAsset.firstLiquidationTime(m.asset) && timeDiff <= secondLiquidationTime
+                && s.flagMapping[m.short.flaggerId] == msg.sender;
+```
+
+<details>
+  <summary><b>Click to expand Proof of Concept</b></summary>
+
+  ```solidity
+  function testShortFlagReusedTooEarly() public {
+        skipTimeAndSetEth(2 hours, 4000 ether);
+
+        // Create short 1
+        fundLimitShortOpt(DEFAULT_PRICE, DEFAULT_AMOUNT, sender);
+        // Create short 2
+        fundLimitShortOpt(DEFAULT_PRICE, DEFAULT_AMOUNT, sender);
+
+        // match short 1
+        fundLimitBidOpt(DEFAULT_PRICE, DEFAULT_AMOUNT, receiver);
+        // match short 2
+        fundLimitBidOpt(DEFAULT_PRICE, DEFAULT_AMOUNT, receiver);
+        // extra Ask for liquidation
+        fundLimitAskOpt(DEFAULT_PRICE, DEFAULT_AMOUNT , extra);
+
+        // skip time, price fall
+        skipTimeAndSetEth(2 hours, 2000 ether);
+
+        // Extra user flag short 1
+        vm.prank(extra);
+        diamond.flagShort(asset, sender, Constants.SHORT_STARTING_ID, Constants.HEAD);
+
+        // skip user grace period
+        skipTimeAndSetEth(11 hours, 2000 ether);
+        
+        // receiver flags short 2
+        vm.prank(receiver);
+        diamond.flagShort(asset, sender, Constants.SHORT_STARTING_ID + 1, Constants.HEAD);
+
+         vm.startPrank(extra);
+        // extra user tries to liquidate short 1 in the valid time range but flag is reused so fails
+        vm.expectRevert(Errors.MarginCallIneligibleWindow.selector);
+        diamond.liquidate(
+            asset, sender, Constants.SHORT_STARTING_ID, shortHintArrayStorage
+        );
+        vm.stopPrank();
+    }
+```
+</details>
 
   **Impact:** 
 
+  Flaggers is unable to liquidate short positions during their designated time slots
+
   **Tools Used:** 
 
+  - Manual Analysis
+  - Foundry
+
   **Recommendation:** 
+
+  Ensure that flagger IDs are reused only after the secondLiquidationTime.
+
+```solidity
+if (timeDiff > LibAsset.secondLiquidationTime(cusd)) {
+   delete s.assetUser[cusd][flaggerToReplace].g_flaggerId;
+   short.flaggerId = flagStorage.g_flaggerId = flaggerHint;
+```
 
 </details>
 

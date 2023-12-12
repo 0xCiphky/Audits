@@ -27,4 +27,10 @@
 10. [**Dopex - Decentralized Options Exchange**](https://github.com/areezladhani/Audits/blob/main/audits/Dopex.md)
 11. [**Chainlink Staking v0.2 - Staking**](https://github.com/areezladhani/Audits/blob/main/audits/Temp.md)
 
+### October 2023
+11. [**Ditto**]()
+12. [**The Wildcat Protocol**]()
 
+### November 2023
+10. [**Steadefi**]()
+11. [**Panoptic**]() 

@@ -458,7 +458,277 @@ As you can see the updateErcDebt function is not called anywhere in the function
 ---
 
 <details>
-  <summary><a id="l01---xxx"></a>[L01] - XXX</summary>
+  <summary><a id="l01---xxx"></a>[L01] - Last short does not reset liquidation flag after user gets fully liquidated, meaning healthy position will still be flagged if another order gets filled</summary>
+  
+  <br>
+
+  **Severity:** Low
+
+  **Summary:** 
+
+  - The protocol permits users to maintain up to 254 concurrent short records. When this limit is reached, any additional orders are appended to the final position, rather than creating a new one.
+- A short record is flagged if it falls below the primary liquidation ratio set by the protocol, signalling to the user that their position is nearing an unhealthy state. The user can resolve this by modifying the position to improve its health or by paying off the short and exiting the position.
+- If a user is unable to get their their position to a healthy state by a certain time they can be liquidated.
+- A vulnerability exists where, under specific circumstances, a user’s healthy position is flagged and can be instantly liquidated without warning.
+
+  **Vulnerability Details:**
+
+  - Consider the following scenario
+    1. User A creates a short order, that gets matched and fills in the last short (ID 254).
+    2. User A’s position falls below the primary liquidation ratio and is flagged by User B.
+    3. User A’s position is fully liquidated by User B, with the flag remaining active post liquidation.
+    4. Another order gets filled at a healthy ratio at the same ID but remains flagged.
+
+<details>
+  <summary><b>Click to expand Proof of Concept</b></summary>
+
+  ```solidity
+    function testLastShortLiqShort() public {
+        skipTimeAndSetEth(2 hours, 4000 ether);
+        // fill up shorts (up to 253)
+        for (uint256 i; i < 252; i++) {
+            fundLimitShortOpt(DEFAULT_PRICE, DEFAULT_AMOUNT, sender);
+            fundLimitBidOpt(DEFAULT_PRICE, DEFAULT_AMOUNT, receiver);
+        }
+
+        // Create short 254
+        fundLimitShortOpt(DEFAULT_PRICE, DEFAULT_AMOUNT , sender);
+
+        // create bid for short
+        fundLimitBidOpt(DEFAULT_PRICE, DEFAULT_AMOUNT, receiver);
+
+        //get short
+        STypes.ShortRecord memory shortBeforeFlag = getShortRecord(sender, 254);
+
+        //check short flag
+        assertEq(shortBeforeFlag.flaggerId, 0);
+
+        // fall in price
+        skipTimeAndSetEth(2 hours, 2000 ether);
+
+        // flag short
+        vm.prank(extra);
+        diamond.flagShort(asset, sender, 254, Constants.HEAD);
+
+        //get short
+        STypes.ShortRecord memory shortAfterFlag = getShortRecord(sender, 254);
+        //check short flag
+        assertGt(shortAfterFlag.flaggerId, 0);
+
+        skipTimeAndSetEth(11 hours, 2000 ether);
+        fundLimitAskOpt(DEFAULT_PRICE, DEFAULT_AMOUNT, extra);
+
+          // liquidate short
+        vm.prank(extra);
+        diamond.liquidate(asset, sender, 254, shortHintArrayStorage);
+
+        //get short
+        STypes.ShortRecord memory shortAfterExit = getShortRecord(sender, 254);
+        //check short flag
+        assertGt(shortAfterExit.flaggerId, 0);
+
+        //price recover back to initial
+        skipTimeAndSetEth(2 hours, 4000 ether);
+
+        // Create short 254
+        fundLimitShortOpt(DEFAULT_PRICE, DEFAULT_AMOUNT , sender);
+
+        // create bid for short
+        fundLimitBidOpt(DEFAULT_PRICE, DEFAULT_AMOUNT, receiver);
+        //get short
+        STypes.ShortRecord memory shortAfterMatch = getShortRecord(sender, 254);
+
+        //check short flag
+        assertGt(shortAfterMatch.flaggerId, 0);
+
+        //price fall
+        skipTimeAndSetEth(11 hours, 2000 ether);
+        fundLimitAskOpt(DEFAULT_PRICE, DEFAULT_AMOUNT, extra);
+
+        // liquidate short
+        vm.prank(extra);
+        diamond.liquidate(asset, sender, 254, shortHintArrayStorage);
+    }
+```
+</details>
+
+**Impact:** 
+
+  - A healthy short is incorrectly flagged.
+- If the new short falls below the primary liquidation ratio:
+  - It cannot be flagged by another user until updatedAt (when short was filled) plus the reset time is reached.
+  - It can be liquidated after updatedAt (when short was filled) plus the firstLiquidationTime till resetLiquidationTime even if it was never flagged.
+  - Keep in mind the shorts updatedAt will be updated when the short gets filled so this will push the liquidation times up by the time diff (fillShort - flagged).
+- The protocol gives users a grace period to reestablish their positions when they fall below the primary liquidation ratio, however in the following situation a user can be liquidated without warning (being flagged).
+- A user is also unable to use certain protocol functionality (e.g. transfer his short).
+
+**Tools Used:**
+
+  - Manual Analysis
+  - Foundry
+
+**Recommendation:**
+
+  - The liquidation process must reset the flag in full liquidations to ensure that users don’t start off with healthy positions flagged when the another order gets matched to the last short.
+
+```solidity
+if (m.short.ercDebt == m.ercDebtMatched) {
+            // Full liquidation
+            LibShortRecord.disburseCollateral(
+                m.asset,
+                m.shorter,
+                m.short.collateral,
+                m.short.zethYieldRate,
+                m.short.updatedAt
+            );
+            LibShortRecord.deleteShortRecord(m.asset, m.shorter, m.short.id);
+            if (!m.loseCollateral) {
+                m.short.collateral -= decreaseCol;
+                s.vaultUser[m.vault][m.shorter].ethEscrowed += m.short.collateral;
+                s.vaultUser[m.vault][address(this)].ethEscrowed -= m.short.collateral;
+
+						// reset flag here
+						short.resetFlag()
+            }
+```
+
+</details>
+
+<details>
+  <summary><a id="l02---xxx"></a>[L02] - XXX</summary>
+  
+  <br>
+
+  **Severity:** Low
+
+  **Summary:** 
+
+  **Vulnerability Details:** 
+
+  **Impact:** 
+
+  **Tools Used:** 
+
+  **Recommendation:** 
+
+</details>
+
+<details>
+  <summary><a id="l03---xxx"></a>[L03] - XXX</summary>
+  
+  <br>
+
+  **Severity:** Low
+
+  **Summary:** 
+
+  **Vulnerability Details:** 
+
+  **Impact:** 
+
+  **Tools Used:** 
+
+  **Recommendation:** 
+
+</details>
+
+<details>
+  <summary><a id="l04---xxx"></a>[L04] - XXX</summary>
+  
+  <br>
+
+  **Severity:** Low
+
+  **Summary:** 
+
+  **Vulnerability Details:** 
+
+  **Impact:** 
+
+  **Tools Used:** 
+
+  **Recommendation:** 
+
+</details>
+
+<details>
+  <summary><a id="l05---xxx"></a>[L05] - XXX</summary>
+  
+  <br>
+
+  **Severity:** Low
+
+  **Summary:** 
+
+  **Vulnerability Details:** 
+
+  **Impact:** 
+
+  **Tools Used:** 
+
+  **Recommendation:** 
+
+</details>
+
+<details>
+  <summary><a id="l06---xxx"></a>[L06] - XXX</summary>
+  
+  <br>
+
+  **Severity:** Low
+
+  **Summary:** 
+
+  **Vulnerability Details:** 
+
+  **Impact:** 
+
+  **Tools Used:** 
+
+  **Recommendation:** 
+
+</details>
+
+<details>
+  <summary><a id="l07---xxx"></a>[L07] - XXX</summary>
+  
+  <br>
+
+  **Severity:** Low
+
+  **Summary:** 
+
+  **Vulnerability Details:** 
+
+  **Impact:** 
+
+  **Tools Used:** 
+
+  **Recommendation:** 
+
+</details>
+
+<details>
+  <summary><a id="l08---xxx"></a>[L08] - XXX</summary>
+  
+  <br>
+
+  **Severity:** Low
+
+  **Summary:** 
+
+  **Vulnerability Details:** 
+
+  **Impact:** 
+
+  **Tools Used:** 
+
+  **Recommendation:** 
+
+</details>
+
+<details>
+  <summary><a id="l09---xxx"></a>[L09] - XXX</summary>
   
   <br>
 

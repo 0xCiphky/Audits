@@ -331,21 +331,74 @@ function emergencyResume(uint256 slippage) external payable onlyOwner {
 </details>
 
 <details>
-  <summary><a id="m02---xxx"></a>[M02] - XXX</summary>
+  <summary><a id="m02---xxx"></a>[M02] - emergencyPause function doesn’t account for any two-step actions currently in progress </summary>
   
   <br>
 
-  **Severity:** Medium
+**Severity:** Medium
 
-  **Summary:** 
+**Summary:** 
 
-  **Vulnerability Details:** 
+  The protocol implements an emergencyPause function to be called by approved Keepers in an emergency situation. This function is designed to convert all liquidity pool tokens back to the underlying assets and hold them in the vault, also pausing all vault activities, including asset deposits, borrows, or rebalancing. However, the function fails to consider ongoing process such as deposits, withdrawals, compounding, or rebalancing, which could result in incomplete actions and potential loss of funds.
 
-  **Impact:** 
+**Vulnerability Details:** 
 
-  **Tools Used:** 
+The **`emergencyPause`** function changes the vault's status to "Paused", preventing any  asset deposits, borrows, or rebalancing. However, if the function is executed while an ongoing process is underway, it could prevent the completion of that transaction. This is due to the fact that in-progress transactions rely on the vault's status for their completion logic to execute successfully.
 
-  **Recommendation:** 
+```solidity
+function emergencyPause(
+    GMXTypes.Store storage self
+  ) external {
+    self.refundee = payable(msg.sender);
+
+    GMXTypes.RemoveLiquidityParams memory _rlp;
+
+    // Remove all of the vault's LP tokens
+    _rlp.lpAmt = self.lpToken.balanceOf(address(this));
+    _rlp.executionFee = msg.value;
+
+    GMXManager.removeLiquidity(
+      self,
+      _rlp
+    );
+
+    self.status = GMXTypes.Status.Paused;
+
+    emit EmergencyPause();
+  }
+```
+
+Assuming an **`afterDepositExecution`** callback should trigger, its completion would be blocked by the paused status set by an **`emergencyPause`** call. This causes the callback to take no further action, preventing users from receiving any vault shares they should be entitled to post-deposit.
+
+```solidity
+function afterDepositExecution(
+    bytes32 depositKey,
+    IDeposit.Props memory /* depositProps */,
+    IEvent.Props memory /* eventData */
+  ) external onlyController {
+    GMXTypes.Store memory _store = vault.store();
+
+    if (
+      _store.status == GMXTypes.Status.Deposit &&
+      _store.depositCache.depositKey == depositKey
+    ) {
+      vault.processDeposit();
+    } else if (
+	...
+  }
+```
+
+**Impact:** 
+
+Any in-progress transaction is not accounted for when the emergency pause is activated resulting in incomplete processes and a disruption of the protocol's accounting or a loss of funds. Furthermore the execution fee refund will be sent back to the keeper that called emergencyPause instead of the user.
+
+**Tools Used:** 
+
+Manual analysis
+
+**Recommendation:** 
+
+Implement additional functionality within the **`emergencyPause`** function to ensure that ongoing transactions are accounted for before and the protocols accounting is correctly updated.
 
 </details>
 

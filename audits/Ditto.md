@@ -1154,40 +1154,92 @@ function combineShorts(address asset, uint8[] memory ids)
 </details>
 
 <details>
-  <summary><a id="l07---xxx"></a>[L07] - XXX</summary>
+  <summary><a id="l07---xxx"></a>[L07] - Users who are flagged and get back to a healthy ratio through price increase are still flagged contrary to the docs </summary>
   
   <br>
 
-  **Severity:** Low
+**Severity:** Low
 
-  **Summary:** 
+**Summary:** 
 
-  **Vulnerability Details:** 
+The protocol allows users to flag positions that fall below the primary collateral ratio. Once flagged, if the position stays below this ratio, the flagger obtains the right to liquidate the position after a specified duration.
 
-  **Impact:** 
+According to the protocol's documentation:
 
-  **Tools Used:** 
+‘To halt the liquidation timer and remove the flag, the shorter must reach the target maintenance margin collateral ratio (200%) either through favourable price movements or by injecting additional collateral.’
 
-  **Recommendation:** 
+However, the system does not have functionality to allow the reset of flags even when the price moves favourably, and the user’s position reaches the target maintenance margin collateral ratio (CR). This discrepancy implies that, during the flag duration, users could experience instant liquidation by the flagger or any one else without warning, even if their positions had reached a healthy state after being flagged.
+
+**Vulnerability Details/Impact:** 
+
+Users, even with healthy positions, may be compelled to add additional collateral, merge shorts, or invoke the exit function to reset the flag. This limitation implies that the flag cannot be reset unless users modify their positions, a condition that contradicts the stated documentation.
+
+**Tools Used:** 
+
+Manual analysis
+
+**Recommendation:** 
+
+Revise the flagShort function or introduce a new mechanism allowing users to manually reset the flag on their positions once they have regained a healthy state.
 
 </details>
 
 <details>
-  <summary><a id="l08---xxx"></a>[L08] - XXX</summary>
+  <summary><a id="l08---xxx"></a>[L08] - collateral ratio can never be the max</summary>
   
   <br>
 
-  **Severity:** Low
+**Severity:** Low
 
-  **Summary:** 
+**Summary:** 
 
-  **Vulnerability Details:** 
+The protocol has a maximum collateral ratio (CR) set for shorts, which is enforced in two different places within the codebase: **`createLimitShort`** and **`increaseCollateral`** functions. However, there is a discrepancy in the implementation. The code checks whether the CR is greater than or equal to (**`≥`**) the maximum allowed value, thus preventing users from ever reaching the exact maximum CR value.
 
-  **Impact:** 
+```solidity
+function createLimitShort(
+        address asset,
+        uint80 price,
+        uint88 ercAmount,
+        MTypes.OrderHint[] memory orderHintArray,
+        uint16[] memory shortHintArray,
+        uint16 initialCR
+    ) external isNotFrozen(asset) onlyValidAsset(asset) nonReentrant {
+				...
+				if (Asset.initialMargin > initialCR || cr >= Constants.CRATIO_MAX) {
+            revert Errors.InvalidInitialCR();
+        }
+				...
+	}
+```
 
-  **Tools Used:** 
+```solidity
+function increaseCollateral(address asset, uint8 id, uint88 amount)
+        external
+        isNotFrozen(asset)
+        nonReentrant
+        onlyValidShortRecord(asset, msg.sender, id)
+    {
+				...
+				if (cRatio >= Constants.CRATIO_MAX) revert Errors.CollateralHigherThanMax();
+				...
+		}
+```
 
-  **Recommendation:** 
+**Vulnerability Details:** 
+
+The use of the **`≥`** operator instead of the **`>`** operator when comparing the CR with the **`Constants.CRATIO_MAX`** prevents users from setting a CR that is exactly equal to the maximum allowable CR, limiting them to values strictly less than the maximum.
+
+**Impact:** 
+
+The impact of this issue is relatively low, as it primarily affects the flexibility users have in setting the CR for their shorts.
+
+**Tools Used:** 
+
+Manual Analysis
+
+**Recommendation:** 
+
+Update the condition to use the **`>`** operator instead of **`≥`**, allowing users to set a CR exactly equal to **`Constants.CRATIO_MAX`**.
 
 </details>
 

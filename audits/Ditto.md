@@ -1009,21 +1009,147 @@ When interacting with the respective bridges, the protocol should ensure that us
 </details>
 
 <details>
-  <summary><a id="l06---xxx"></a>[L06] - XXX</summary>
+  <summary><a id="l06---xxx"></a>[L06] - User can accidentally or maliciously combine the same short</summary>
   
   <br>
 
-  **Severity:** Low
+**Severity:** Low
 
-  **Summary:** 
+**Summary:** 
 
-  **Vulnerability Details:** 
+  The protocol allows the merging of multiple short positions into one, provided the combined short maintains a healthy ratio. A known issue, "M-06 duplicate inputs," states that the use of of duplicate shorts is averted as shorts are deleted once combined, however it misses a sequence that can potentially bypass this preventive measure, leading to unintended or malicious  cancellations of active orders and disruptions in protocol accounting.
 
-  **Impact:** 
+**Vulnerability Details:** 
 
-  **Tools Used:** 
+  The vulnerability resides in the **`combineShorts`** function, which initiates by validating the first short:
 
-  **Recommendation:** 
+```solidity
+function combineShorts(address asset, uint8[] memory ids)
+        external
+        isNotFrozen(asset)
+        nonReentrant
+        onlyValidShortRecord(asset, msg.sender, ids[0])
+    {
+```
+
+Subsequent to the initial validation, a loop validates the remaining shorts and commences the combination process:
+
+```solidity
+address _asset = asset;
+        uint88 collateral;
+        uint88 ercDebt;
+        uint256 yield;
+        uint256 ercDebtSocialized;
+        for (uint256 i = ids.length - 1; i > 0; i--) {
+            uint8 _id = ids[i];
+            _onlyValidShortRecord(_asset, msg.sender, _id);
+            STypes.ShortRecord storage currentShort =
+                s.shortRecords[_asset][msg.sender][_id];
+            // See if there is at least one flagged short
+            if (!c.shortFlagExists) {
+                if (currentShort.flaggerId != 0) {
+                    c.shortFlagExists = true;
+                }
+            }
+```
+
+Finally, the merging of the shorts is performed:
+
+```solidity
+// Merge all short records into the short at position id[0]
+        firstShort.merge(ercDebt, ercDebtSocialized, collateral, yield, c.shortUpdatedAt);
+```
+
+The loophole emerges when the first short is repeated later down the array. This short is initially checked by onlyValidShortRecord(asset, msg.sender, ids[0]), it will then be combined in the loop and deleted, however the first shot is not checked again so we end up merging the total to a deleted short.
+
+<details>
+  <summary><b>Click to expand Proof of Concept</b></summary>
+
+  ```solidity
+    function testCombineDupShort() public {
+        for (uint256 i; i < 3; i++) {
+            fundLimitShortOpt(DEFAULT_PRICE, DEFAULT_AMOUNT, sender);
+            fundLimitBidOpt(DEFAULT_PRICE, DEFAULT_AMOUNT, receiver);
+        }
+        uint8[] memory shortIds = new uint8[](4);
+        shortIds[0] = Constants.SHORT_STARTING_ID;
+        shortIds[1] = Constants.SHORT_STARTING_ID + 1;
+        shortIds[2] = Constants.SHORT_STARTING_ID + 2;
+        shortIds[3] = Constants.SHORT_STARTING_ID;
+        vm.prank(sender);
+        diamond.combineShorts(asset, shortIds);
+
+        STypes.ShortRecord memory shortRecord = getShortRecord(sender, Constants.SHORT_STARTING_ID);
+
+        // check if cancelled
+        assertTrue(shortRecord.status == SR.Cancelled);
+    }
+```
+</details>
+
+**Impact:** 
+
+This has two significant impacts on the protocol:
+- If executed accidentally a user will lose all combined shorts.
+- If executed maliciously, let's say the short is worth close to nothing, a user could reset the flag as this double counts the repeated short. The short is then cancelled and can't be liquidated.
+- Both scenarios will also disrupt protocol accounting as the values are not correctly accounted for.
+
+**Tools Used:** 
+
+- Manual analysis
+- Foundry
+
+**Recommendation:** 
+
+To fix this, the validation of the first short should be conducted post the loop execution or integrated within another validation checkpoint post-loop.
+
+```solidity
+function combineShorts(address asset, uint8[] memory ids)
+        external
+        isNotFrozen(asset)
+        nonReentrant
+        onlyValidShortRecord(asset, msg.sender, ids[0])
+    {
+        // initial code
+
+        address _asset = asset;
+        uint88 collateral;
+        uint88 ercDebt;
+        uint256 yield;
+        uint256 ercDebtSocialized;
+        for (uint256 i = ids.length - 1; i > 0; i--) {
+            uint8 _id = ids[i];
+            _onlyValidShortRecord(_asset, msg.sender, _id);
+            STypes.ShortRecord storage currentShort =
+                s.shortRecords[_asset][msg.sender][_id];
+            // See if there is at least one flagged short
+            if (!c.shortFlagExists) {
+                if (currentShort.flaggerId != 0) {
+                    c.shortFlagExists = true;
+                }
+            }
+
+         // code in between
+		
+		onlyValidShortRecord(asset, msg.sender, ids[0]) //added check
+
+        // Merge all short records into the short at position id[0]
+        firstShort.merge(ercDebt, ercDebtSocialized, collateral, yield, c.shortUpdatedAt);
+
+        // If at least one short was flagged, ensure resulting c-ratio > primaryLiquidationCR
+        if (c.shortFlagExists) {
+            if (
+                firstShort.getCollateralRatioSpotPrice(
+                    LibOracle.getSavedOrSpotOraclePrice(_asset)
+                ) < LibAsset.primaryLiquidationCR(_asset)
+            ) revert Errors.InsufficientCollateral();
+            // Resulting combined short has sufficient c-ratio to remove flag
+            firstShort.resetFlag();
+        }
+        emit Events.CombineShorts(asset, msg.sender, ids);
+    }
+}
+```
 
 </details>
 

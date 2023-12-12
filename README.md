@@ -32,5 +32,5 @@
 12. [**The Wildcat Protocol**]()
 
 ### November 2023
-10. [**Steadefi**]()
+10. [**Steadefi**](https://github.com/0xCiphky/Audits/blob/main/audits/Steadefi.md)
 11. [**Panoptic**]() 

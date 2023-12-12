@@ -28,7 +28,7 @@
 11. [**Chainlink Staking v0.2 - Staking**](https://github.com/areezladhani/Audits/blob/main/audits/Temp.md)
 
 ### October 2023
-11. [**Ditto**]()
+11. [**Ditto**](https://github.com/0xCiphky/Audits/blob/main/audits/DittoETH.md)
 12. [**The Wildcat Protocol**]()
 
 ### November 2023

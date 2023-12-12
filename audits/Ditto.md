@@ -962,7 +962,7 @@ if (m.short.ercDebt == m.ercDebtMatched) {
 </details>
 
 <details>
-  <summary><a id="l05---xxx"></a>[L05] - XXX</summary>
+  <summary><a id="l05---xxx"></a>[L05] - Protocol doesn’t take into account RETH/STETH requirements </summary>
   
   <br>
 
@@ -970,13 +970,41 @@ if (m.short.ercDebt == m.ercDebtMatched) {
 
   **Summary:** 
 
-  **Vulnerability Details:** 
+  The protocol accommodates deposits of staked ETH derivatives, such as rETH or stETH, alongside ETH, subsequently granting users a wrapped token, zETH, denoting claims to ETH within the protocol. Although the protocol allows for the minting of zETH through deposits of ETH or accepted LST, it doesn't enforce the limitations established by the LST pools. This oversight could lead to inadvertent transaction reverts, causing potential disruption in user interaction with the protocol.
 
-  **Impact:** 
+**Vulnerability Details:** 
 
-  **Tools Used:** 
+  The protocol does not enforce constraints set by the stETH and rETH pools, leading to potential disruptions. Specifically:
 
-  **Recommendation:** 
+**stETH Pool Constraints:**
+
+- **On Using `requestWithdrawals()`:**
+    - Every amount in **`_amounts`** must adhere to the **`MIN_STETH_WITHDRAWAL_AMOUNT`** and **`MAX_STETH_WITHDRAWAL_AMOUNT`**.
+- **On Depositing:**
+    - The pool imposes a sliding window limit, determined by **`_maxStakingLimit`** and **`_stakeLimitIncreasePerBlock`**, restricting the amount of ether that can be staked within a 24-hour period.
+      - Deposits reduce the health level of the protocol, progressively lowering the limit until it reaches its minimum, post which transactions are reverted.
+      - Compliance with **`getCurrentStakeLimit() >= amountToStake`** is essential to avoid transaction reversion.
+
+**rETH Pool Constraints:**
+
+- **Deposit Availability Check:**
+    - The Rocket Pool's **`RocketDepositPool`** contract mandates a check to confirm the viability of the intended deposit.
+- **Minimum Deposit Limitation:**
+    - The protocol accommodates deposits as low as 0.01 ETH, allowing a broader user base to earn rewards.
+- **Deposit Delay (currently not active):**
+    - rETH tokens from Rocket Pool incorporate a deposit delay, hindering the immediate transfer or burning of tokens by recent depositors.
+
+**Impact:** 
+
+The lack of checks to these limitations can lead to transaction reverts if any of the requirements are not met, potentially affecting the overall user experience of the protocol.
+
+**Tools Used:** 
+
+- manual analysis
+
+**Recommendation:** 
+
+When interacting with the respective bridges, the protocol should ensure that users comply with the allowed ranges and that the bridges are accepting deposits.
 
 </details>
 

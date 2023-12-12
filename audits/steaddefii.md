@@ -30,21 +30,78 @@ Steadefi is the next-gen DeFi protocol designed to provide the highest and most 
 ## Detailed Findings
 
 <details>
-  <summary><a id="h01---xxx"></a>[H01] - XXX</summary>
+  <summary><a id="h01---xxx"></a>[H01] - processDepositCancellation can be maliciously reverted when sending native tokens to a user</summary>
   
   <br>
 
-  **Severity:** High
+**Severity:** High
 
-  **Summary:** 
+**Summary:** 
 
-  **Vulnerability Details:** 
+  The Strategy Vaults within the protocol use a two-step process for handling asset transfers via GMXv2. A **`createDeposit()`** transaction is followed by a callback function (**`afterDepositExecution()`** or **`afterDepositCancellation()`**) based on the transaction's success. In the event of a failed deposit due to GMX checks, a malicious user can halt the protocol by causing an intentional revert in the processDepositCancellation function.
 
-  **Impact:** 
+**Vulnerability Details:** 
 
-  **Tools Used:** 
+  The **`processDepositCancellation`** function is invoked when a deposit to the GMX fails and the corresponding **`afterDepositCancellation()`** callback is triggered in the vault's callback contract. The function is designed to refund the user's deposited assets. However, there's a vulnerability when returning native tokens through a low-level call.
 
-  **Recommendation:** 
+```solidity
+function processDepositCancellation(GMXTypes.Store storage self) external {
+        GMXChecks.beforeProcessDepositCancellationChecks(self);
+
+        // Repay borrowed assets
+        GMXManager.repay(
+            self, self.depositCache.borrowParams.borrowTokenAAmt, self.depositCache.borrowParams.borrowTokenBAmt
+        );
+
+        // Return user's deposited asset
+        // If native token is being withdrawn, we convert wrapped to native
+        if (self.depositCache.depositParams.token == address(self.WNT)) {
+            self.WNT.withdraw(self.WNT.balanceOf(address(this)));
+            (bool success,) = self.depositCache.user.call{value: address(this).balance}("");
+            require(success, "Transfer failed.");
+        } else {
+            // Transfer requested withdraw asset to user
+            IERC20(self.depositCache.depositParams.token).safeTransfer(
+                self.depositCache.user, self.depositCache.depositParams.amt
+            );
+        }
+
+        self.status = GMXTypes.Status.Open;
+
+        emit DepositCancelled(self.depositCache.user);
+    }
+```
+
+The vulnerability lies in the use of a low-level call to transfer native tokens, which checks for a successful transfer before completing the transaction. A malicious user can create a smart contract with a receive function that purposely fails, preventing the completion of the **`processDepositCancellation`** function.
+
+**Impact:** 
+
+The exploit can lead to the **`processDepositCancellation`** function consistently failing, which traps the contract in a perpetual "Deposit" state. This persistent state prevents any future interactions with the vault, effectively freezing its operations and could be leveraged to perform a denial-of-service attack on the protocol.
+
+**Tools Used:** 
+
+Manual analysis
+
+**Recommendation:** 
+
+To mitigate the risk, the protocol should avoid relying on the success status of the low-level call within the **`processDepositCancellation`** function. One possible solution could be implementing a try-catch mechanism around the low-level call or not requiring the success of the call for the function to proceed. Here's the updated code suggestion:
+
+```solidity
+function processDepositCancellation(GMXTypes.Store storage self) external {
+        GMXChecks.beforeProcessDepositCancellationChecks(self);
+
+		...
+
+        // Return user's deposited asset
+        // If native token is being withdrawn, we convert wrapped to native
+        if (self.depositCache.depositParams.token == address(self.WNT)) {
+            self.WNT.withdraw(self.WNT.balanceOf(address(this)));
+            (bool success,) = self.depositCache.user.call{value: address(this).balance}("");
+        } else {
+	      
+		...
+    }
+```
 
 </details>
 

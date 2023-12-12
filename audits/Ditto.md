@@ -248,16 +248,16 @@ function createShortRecord(
                 zethYieldRate
             );
 
-				// If the short was flagged, ensure resulting c-ratio > primaryLiquidationCR
-		        if (Constants.SHORT_MAX_ID.shortFlagExists) {
+            // If the short was flagged, ensure resulting c-ratio > primaryLiquidationCR
+		 if (Constants.SHORT_MAX_ID.shortFlagExists) {
 	                if (
 	                    Constants.SHORT_MAX_ID.getCollateralRatioSpotPrice(
 	                        LibOracle.getSavedOrSpotOraclePrice(_asset)
-	                    ) < LibAsset.primaryLiquidationCR(_asset)
-	                ) revert Errors.InsufficientCollateral();
-	                // Resulting combined short has sufficient c-ratio to remove flag
-	                Constants.SHORT_MAX_ID.resetFlag();
-		        }
+	                ) < LibAsset.primaryLiquidationCR(_asset)
+                  ) revert Errors.InsufficientCollateral();
+                  // Resulting combined short has sufficient c-ratio to remove flag
+                  Constants.SHORT_MAX_ID.resetFlag();
+                 }
             }
     }
 ```

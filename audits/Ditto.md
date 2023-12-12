@@ -269,13 +269,13 @@ function createShortRecord(
   
   <br>
 
-  **Severity:** High
+**Severity:** High
 
-  **Summary:** 
+**Summary:** 
 
   The protocol enables users to flag positions that fall below the primary collateral ratio. Subsequently, the shorter is granted a time frame to restore their position above this ratio to avoid liquidation. If the position remains below the primary collateral ratio, the flagger attains the exclusive right to liquidate it before anyone else.
 
-  **Vulnerability Details:** 
+**Vulnerability Details:** 
 
   To optimize the process, the protocol reuses flagger IDs. However, a flaw exists in the protocol where a flagger ID is available for reuse after the firstLiquidationTime instead of after the secondLiquidationTime.
 
@@ -339,16 +339,16 @@ uint256 secondLiquidationTime = LibAsset.secondLiquidationTime(m.asset);
 ```
 </details>
 
-  **Impact:** 
+**Impact:** 
 
   Flaggers is unable to liquidate short positions during their designated time slots
 
-  **Tools Used:** 
+**Tools Used:** 
 
   - Manual Analysis
   - Foundry
 
-  **Recommendation:** 
+**Recommendation:** 
 
   Ensure that flagger IDs are reused only after the secondLiquidationTime.
 
@@ -367,15 +367,15 @@ if (timeDiff > LibAsset.secondLiquidationTime(cusd)) {
   
   <br>
 
-  **Severity:** Medium
+**Severity:** Medium
 
-  **Summary:** 
+**Summary:** 
 
   The protocol allows users to combine multiple short positions into one as long as the combined short stays above the primary collateral ratio. The function is also able to reset an active flag from any of the combined shorts if the final ratio is above the primaryLiquidationCR.
 
 The issue is that the combineShorts function does not call updateErcDebt, which is called in every other function that is able to reset a shorts flag. This means that if the debt is outdated the final combined short could incorrectly reset the flag putting the position on a healthy ratio when it really isn’t. This would also mean that it will have to be reflagged and go through the timer again before it can be liquidated.
 
-  **Vulnerability Details:** 
+**Vulnerability Details:** 
 
   The combine shorts function merges all short records into the short at position id[0]. Focusing on the debt aspect it adds up the total debt and calculates the ercDebtSocialized of all positions except for the first.
 
@@ -414,16 +414,16 @@ Finally we check if the position had an active flag and if it did, we check if t
 
 As you can see the updateErcDebt function is not called anywhere in the function meaning the flag could be reset with outdated values.
 
-  **Impact:** 
+**Impact:** 
 
   A short could have its flag incorrectly reset and reset the timer. This is not good for the protocol as it will have a unhealthy short for a longer time.
 
-  **Tools Used:** 
+**Tools Used:** 
 
   - Manual analysis
   - Foundry
 
-  **Recommendation:** 
+**Recommendation:** 
 
   Call updateErcDebt on the short once it is combined in the combineShorts function to ensure the collateral ratio is calculated with the most up to date values.
 
@@ -464,16 +464,16 @@ As you can see the updateErcDebt function is not called anywhere in the function
   
   <br>
 
-  **Severity:** Low
+**Severity:** Low
 
-  **Summary:** 
+**Summary:** 
 
   - The protocol permits users to maintain up to 254 concurrent short records. When this limit is reached, any additional orders are appended to the final position, rather than creating a new one.
 - A short record is flagged if it falls below the primary liquidation ratio set by the protocol, signalling to the user that their position is nearing an unhealthy state. The user can resolve this by modifying the position to improve its health or by paying off the short and exiting the position.
 - If a user is unable to get their their position to a healthy state by a certain time they can be liquidated.
 - A vulnerability exists where, under specific circumstances, a user’s healthy position is flagged and can be instantly liquidated without warning.
 
-  **Vulnerability Details:**
+**Vulnerability Details:**
 
   - Consider the following scenario
     1. User A creates a short order, that gets matched and fills in the last short (ID 254).
@@ -601,15 +601,15 @@ if (m.short.ercDebt == m.ercDebtMatched) {
   
   <br>
 
-  **Severity:** Low
+**Severity:** Low
 
-  **Summary:** 
+**Summary:** 
 
   - The protocol permits users to maintain up to 254 concurrent short records. When this limit is reached, any additional orders are appended to the final position, rather than creating a new one.
 - A short record is flagged if it falls below the primary liquidation ratio set by the protocol, signalling to the user that their position is nearing an unhealthy state. The user can resolve this by modifying the position to improve its health or by paying off the short and exiting the position.
 - A vulnerability exists where, under specific circumstances, a user’s healthy position is flagged and can be instantly liquidated without warning.
 
-  **Vulnerability Details:**
+**Vulnerability Details:**
 
   - Consider the following scenario
     1. User A creates a short order, that gets matched and fills in the last short (ID 254).

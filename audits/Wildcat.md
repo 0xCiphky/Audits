@@ -844,21 +844,72 @@ Ensure that the constraints set on annualInterestBips, are consistently enforced
 </details>
 
 <details>
-  <summary><a id="m03---xxx"></a>[M03] - XXX</summary>
+  <summary><a id="m03---xxx"></a>[M03] - Sanctioned lender will still accrue interest contrary to the docs</summary>
   
   <br>
 
-  **Severity:** Medium
+**Severity:** Medium
 
-  **Summary:** 
+**Summary:** 
 
-  **Vulnerability Details:** 
+The Wildcat Protocol allows the deployment of an escrow contract between the borrower of a market and a lender in the event of a sanctioned lender address. The borrower initiates this process by calling the nukeFromOrbit function with their address. If the lender is indeed sanctioned, this function creates an escrow contract, transfers the vault balance corresponding to the lender from the market to the escrow, erases the lender's market token balance, and restricts them from further interaction with the market.
 
-  **Impact:** 
+The protocol's documentation states that interest should cease upon the creation and transfer of funds to the escrow:
 
-  **Tools Used:** 
+“Used to transfer the debt for the lender and obligation to repay for the borrower away from the market contract to avoid wider contamination through interaction. Interest ceases to accrue upon creation and transfer.”
 
-  **Recommendation:** 
+However, in the code this interest still accrues:
+
+When a lender is blocked, their funds are transferred to an escrow contract through the _blockAccount function. This function transfers the user's scaled balance to the created escrow.
+
+```solidity
+function _blockAccount(MarketState memory state, address accountAddress) internal {
+        Account memory account = _accounts[accountAddress];
+        if (account.approval != AuthRole.Blocked) {
+            uint104 scaledBalance = account.scaledBalance;
+            account.approval = AuthRole.Blocked;
+            emit AuthorizationStatusUpdated(accountAddress, AuthRole.Blocked);
+
+            if (scaledBalance > 0) {
+                account.scaledBalance = 0;
+                address escrow =
+                    IWildcatSanctionsSentinel(sentinel).createEscrow(accountAddress, borrower, address(this));
+                emit Transfer(accountAddress, escrow, state.normalizeAmount(scaledBalance));
+                _accounts[escrow].scaledBalance += scaledBalance;
+                emit SanctionedAccountAssetsSentToEscrow(accountAddress, escrow, state.normalizeAmount(scaledBalance));
+            }
+            _accounts[accountAddress] = account;
+        }
+    }
+```
+
+These funds remain in the escrow until the borrower removes the sanction or Chainalysis no longer sanctions the lender. Once this occurs, a lender can call releaseEscrow to transfer their funds back to their account.
+
+```solidity
+function releaseEscrow() public override {
+    if (!canReleaseEscrow()) revert CanNotReleaseEscrow();
+
+    uint256 amount = balance();
+
+    IERC20(asset).transfer(account, amount);
+
+    emit EscrowReleased(account, asset, amount);
+  }
+```
+
+Since this involves the market's token, a sanctioned lender can then call queueWithdrawal and executeWithdrawal to withdraw their funds. During this process, the latest scale factor is used to convert the balance, meaning that a sanctioned lender would have accrued all interest until they withdraw, even during the period of their sanction.
+
+**Impact:** 
+
+A sanctioned lender continues to accrue interest at the same rate as other lenders, contrary to the Wildcat documentation.
+
+**Tools Used:** 
+
+Manual analysis
+
+**Recommendation:** 
+
+Modify the code to enforce the stopping of interest upon the creation and transfer of funds to the escrow, aligning it with the protocol's documentation.
 
 </details>
 

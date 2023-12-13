@@ -504,6 +504,12 @@ As you can see the updateErcDebt function is not called anywhere in the function
 
 Low
 
+## **Relevant GitHub Links**
+
+https://github.com/Cyfrin/2023-09-ditto/blob/a93b4276420a092913f43169a353a6198d3c21b9/contracts/facets/MarginCallPrimaryFacet.sol#L89
+
+https://github.com/Cyfrin/2023-09-ditto/blob/a93b4276420a092913f43169a353a6198d3c21b9/contracts/libraries/LibShortRecord.sol#L153
+
 ## **Summary:** 
 
   - The protocol permits users to maintain up to 254 concurrent short records. When this limit is reached, any additional orders are appended to the final position, rather than creating a new one.
@@ -643,6 +649,16 @@ if (m.short.ercDebt == m.ercDebtMatched) {
 
 Low
 
+## **Relevant GitHub Links**
+
+https://github.com/Cyfrin/2023-09-ditto/blob/a93b4276420a092913f43169a353a6198d3c21b9/contracts/facets/ExitShortFacet.sol#L43
+
+https://github.com/Cyfrin/2023-09-ditto/blob/a93b4276420a092913f43169a353a6198d3c21b9/contracts/facets/ExitShortFacet.sol#L90C1-L90C1
+
+https://github.com/Cyfrin/2023-09-ditto/blob/a93b4276420a092913f43169a353a6198d3c21b9/contracts/facets/ExitShortFacet.sol#L145
+
+https://github.com/Cyfrin/2023-09-ditto/blob/a93b4276420a092913f43169a353a6198d3c21b9/contracts/libraries/LibShortRecord.sol#L153
+
 ## **Summary:** 
 
   - The protocol permits users to maintain up to 254 concurrent short records. When this limit is reached, any additional orders are appended to the final position, rather than creating a new one.
@@ -766,6 +782,12 @@ Ensure the flag is reset when a user fully pays off their short, so if it was th
 ## **Severity:** 
 
 Low
+
+## **Relevant GitHub Links**
+
+https://github.com/Cyfrin/2023-09-ditto/blob/a93b4276420a092913f43169a353a6198d3c21b9/contracts/facets/MarginCallPrimaryFacet.sol#L43
+
+https://github.com/Cyfrin/2023-09-ditto/blob/a93b4276420a092913f43169a353a6198d3c21b9/contracts/facets/MarginCallPrimaryFacet.sol#L89
 
 ## **Summary:** 
 
@@ -895,6 +917,14 @@ if (m.short.ercDebt == m.ercDebtMatched) {
 
 Low
 
+## **Relevant GitHub Links**
+
+https://github.com/Cyfrin/2023-09-ditto/blob/a93b4276420a092913f43169a353a6198d3c21b9/contracts/facets/ExitShortFacet.sol#L43
+
+https://github.com/Cyfrin/2023-09-ditto/blob/a93b4276420a092913f43169a353a6198d3c21b9/contracts/facets/ExitShortFacet.sol#L90
+
+https://github.com/Cyfrin/2023-09-ditto/blob/a93b4276420a092913f43169a353a6198d3c21b9/contracts/facets/ExitShortFacet.sol#L145
+
 ## **Summary:** 
 
   - The protocol allows a short order to be partially matched, generating a short record for the matched amount. The unmatched portion of the order can be subsequently filled and added to the short record.
@@ -1016,6 +1046,12 @@ Low
 
 Low
 
+## **Relevant GitHub Links**
+
+https://github.com/Cyfrin/2023-09-ditto/blob/a93b4276420a092913f43169a353a6198d3c21b9/contracts/facets/BridgeRouterFacet.sol#L67
+
+https://github.com/Cyfrin/2023-09-ditto/blob/a93b4276420a092913f43169a353a6198d3c21b9/contracts/facets/BridgeRouterFacet.sol#L116
+
 ## **Summary:** 
 
   The protocol accommodates deposits of staked ETH derivatives, such as rETH or stETH, alongside ETH, subsequently granting users a wrapped token, zETH, denoting claims to ETH within the protocol. Although the protocol allows for the minting of zETH through deposits of ETH or accepted LST, it doesn't enforce the limitations established by the LST pools. This oversight could lead to inadvertent transaction reverts, causing potential disruption in user interaction with the protocol.
@@ -1064,6 +1100,10 @@ When interacting with the respective bridges, the protocol should ensure that us
 ## **Severity:** 
 
 Low
+
+## **Relevant GitHub Links**
+
+https://github.com/Cyfrin/2023-09-ditto/blob/a93b4276420a092913f43169a353a6198d3c21b9/contracts/facets/ShortRecordFacet.sol#L117
 
 ## **Summary:** 
 
@@ -1212,6 +1252,12 @@ function combineShorts(address asset, uint8[] memory ids)
 
 Low
 
+## **Relevant GitHub Links**
+
+https://github.com/Cyfrin/2023-09-ditto/blob/a93b4276420a092913f43169a353a6198d3c21b9/contracts/facets/MarginCallPrimaryFacet.sol#L43
+
+https://github.com/Cyfrin/2023-09-ditto/blob/a93b4276420a092913f43169a353a6198d3c21b9/contracts/facets/MarginCallPrimaryFacet.sol#L89
+
 ## **Summary:** 
 
 The protocol allows users to flag positions that fall below the primary collateral ratio. Once flagged, if the position stays below this ratio, the flagger obtains the right to liquidate the position after a specified duration.
@@ -1244,6 +1290,12 @@ Revise the flagShort function or introduce a new mechanism allowing users to man
 ## **Severity:** 
 
 Low
+
+## **Relevant GitHub Links**
+
+https://github.com/Cyfrin/2023-09-ditto/blob/a93b4276420a092913f43169a353a6198d3c21b9/contracts/facets/ShortRecordFacet.sol#L56
+
+https://github.com/Cyfrin/2023-09-ditto/blob/a93b4276420a092913f43169a353a6198d3c21b9/contracts/facets/ShortOrdersFacet.sol#L46
 
 ## **Summary:** 
 
@@ -1305,6 +1357,10 @@ Update the condition to use the **`>`** operator instead of **`≥`**, allowing 
 ## **Severity:** 
 
 Low
+
+## **Relevant GitHub Links**
+
+https://github.com/Cyfrin/2023-09-ditto/blob/a93b4276420a092913f43169a353a6198d3c21b9/contracts/facets/MarginCallSecondaryFacet.sol#L116
 
 ## **Summary:** 
 

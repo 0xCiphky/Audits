@@ -2,7 +2,7 @@
 
 ---
 
-[Contest Result: 6th Place (2H/1M/9L)](https://www.codehawks.com/contests/clm871gl00001mp081mzjdlwc)
+[Contest Result:]((https://www.codehawks.com/contests/clm871gl00001mp081mzjdlwc)) 6th Place
 
 ## About
 

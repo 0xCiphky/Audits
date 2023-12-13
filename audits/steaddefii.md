@@ -27,6 +27,8 @@ Steadefi is the next-gen DeFi protocol designed to provide the highest and most 
 
 ## Detailed Findings
 
+### High Findings
+
 <details>
   <summary><a id="h01---xxx"></a>[H01] - processDepositCancellation can be maliciously reverted when sending native tokens to a user</summary>
   
@@ -251,6 +253,8 @@ function processWithdrawFailure(
 </details>
 
 ---
+
+### Medium Findings
 
 <details>
   <summary><a id="m01---xxx"></a>[M01] - emergencyPause/emergencyResume functions don’t let keeper adjust the slippage</summary>

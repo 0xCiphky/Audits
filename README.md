@@ -26,4 +26,4 @@
 1. [**Dopex - Decentralized Options Exchange**](https://github.com/areezladhani/Audits/blob/main/audits/Dopex.md)
 2. [**veRWA - Voting-Escrow**](https://github.com/areezladhani/Audits/blob/main/audits/veRWA.md)
 3. [**The Wildcat Protocol**]()
-4. [**Panoptic**]() 
+4. [**Panoptic - options trading**]() 

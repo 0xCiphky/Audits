@@ -2,7 +2,7 @@
 
 ---
 
-[Contest Result:](https://www.codehawks.com/contests/clm871gl00001mp081mzjdlwc) 6th Place
+Contest Result: [6th Place]((https://www.codehawks.com/contests/clm871gl00001mp081mzjdlwc))
 
 ## About
 

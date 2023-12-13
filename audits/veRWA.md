@@ -173,39 +173,63 @@ Reset Votes on delegation: Nullify the delegator's/delegatee’s votes once they
   
 - High Risk
 
-## **Relevant GitHub Links:** 
-
-- 
-
 ## **Summary:** 
 
-- 
+If a gauge that has previously been voted on by users is removed by governance, the voting power of those users becomes locked. This is due to the inability of users to invoke the voting function to reset their votes for that gauge, as the gauge is marked invalid upon removal.
 
-## **Vulnerability Details:** 
+## **Proof of concept:** 
 
-- 
+Below is a test case demonstrating the issue:
 
 ```solidity
+    function testRemoveGaugeResetVote() public {
+        vm.startPrank(gov);
+        gc.add_gauge(gauge1);
+        gc.add_gauge(gauge2);
+        gc.change_gauge_weight(gauge1, 100);
+        gc.change_gauge_weight(gauge2, 100);
+        vm.stopPrank();
 
+        vm.deal(user1, 1 ether);
+
+        vm.startPrank(user1);
+        ve.createLock{value: 1 ether}(1 ether);
+        gc.vote_for_gauge_weights(gauge1, 10000);
+        vm.stopPrank();
+
+        // warp 4 weeks
+        vm.warp(block.timestamp + 4 weeks);
+        console.log("week 4");
+
+        // remove gauge
+        vm.startPrank(gov);
+        gc.remove_gauge(gauge1);
+        vm.stopPrank();
+
+        // user1 tries to change vote
+        vm.startPrank(user1);
+        vm.expectRevert("Invalid gauge address");
+        gc.vote_for_gauge_weights(gauge1, 0);
+        vm.stopPrank();
+    }
 ```
 
-- 
-  
-```solidity
+In the test above:
 
-```
-  
-## **Impact:** 
-
-- 
+- Two Gauges are added, and user votes for gauge1.
+- Time is advanced by 4 weeks.
+- Governance removes gauge1.
+- User1 tries to reset their vote for gauge1 to 0, but it fails due to the "Invalid gauge address" check.
 
 ## **Tools Used:** 
 
-- 
+- Manual analysis
+- Foundry
 
 ## **Recommendation:** 
 
-- 
+- Implement a mechanism to automatically reset the votes for users who have voted on a gauge upon its removal.
+- Alternatively, provide a function that allows users to reset their votes for removed gauges without the isValidGauge check.
 
 </details>
 

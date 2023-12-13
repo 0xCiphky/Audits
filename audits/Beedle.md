@@ -112,8 +112,6 @@ pools[poolId].outstandingLoans += debt;
 
 </details>
 
----
-
 <details>
   <summary><a id="h02---xxx"></a>[H02] - Failure in sellProfits Function due to absence of Token Approval</summary>
   
@@ -172,8 +170,6 @@ pools[poolId].outstandingLoans += debt;
 - Implement the necessary approve call within the sellProfits function to provide the Uniswap v3 router with the necessary permissions to withdraw the required tokens.
 
 </details>
-
----
 
 <details>
   <summary><a id="h03---xxx"></a>[H03] - buyLoan function can be exploited to break protocol invariants</summary>
@@ -254,8 +250,6 @@ This vulnerability can be addressed in two ways, depending on the design choice 
 
 </details>
 
----
-
 <details>
   <summary><a id="h04---xxx"></a>[H04] - Lack of Slippage Control in sellProfits function </summary>
   
@@ -319,8 +313,6 @@ The code snippet of the vulnerable function:
 
 </details>
 
----
-
 <details>
   <summary><a id="h05---xxx"></a>[H05] - No Precision Scaling </summary>
   
@@ -367,8 +359,6 @@ lets look at an example
 - When combining amounts of multiple tokens that may have different precision, convert all of the amounts into the same precision before any computation.
 
 </details>
-
----
 
 <details>
   <summary><a id="h06---xxx"></a>[H06] - Inconsistent balance when tokens with fee on transfer are used</summary>
@@ -497,8 +487,6 @@ function seizeLoan(uint256[] calldata loanIds) public {
 
 </details>
 
----
-
 <details>
   <summary><a id="m02---xxx"></a>[M02] - Lack of Deadline Control in sellProfits Function</summary>
   
@@ -616,8 +604,6 @@ uint256 govFee = (borrowerFee * loan.collateral) / 10000;
 - Consider changing the rounding behaviour in the contract's arithmetic operations to round up instead of down in certain cases. This would ensure that the protocol always collects the maximum possible amount of fees and other amounts.
 
 </details>
-
----
 
 <details>
   <summary><a id="l02---xxx"></a>[L02] - Potential rounding error when computing interest</summary>

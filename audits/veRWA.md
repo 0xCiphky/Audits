@@ -16,7 +16,7 @@ The contracts implement a voting-escrow incentivization model for Canto RWA (Rea
 |-----|----------------------------------|------------|
 | [H01](#h01---xxx) | XXX                              | High       |
 | [H02](#h02---xxx) | XXX                              | High       |
-| [L01](#l01---xxx) | XXX                              | Low/Info   |
+| [QA Report](#QA---xxx) | Inflated Balance After Reward Token Reintroduction                              | Grade: A   |
 
 ---
 
@@ -118,16 +118,16 @@ The contracts implement a voting-escrow incentivization model for Canto RWA (Rea
 
 ---
 
-### Low Findings
+### QA Report
 
 <details>
-  <summary><a id="l01---xxx"></a>[L01] - XXX</summary>
+  <summary><a id="QA---xxx"></a>[QA] - XXX</summary>
   
   <br>
 
 ## **Severity:** 
 
-- Low Risk
+- QA Report
 
 ## **Relevant GitHub Links:** 
 

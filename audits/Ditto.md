@@ -1392,5 +1392,3 @@ Manual Analysis
 Modify the **`batches`** array before emitting it in the event, ensuring it accurately reflects the positions that were actually liquidated.
 
 </details>
-
----

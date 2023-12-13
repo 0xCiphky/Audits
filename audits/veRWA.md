@@ -160,8 +160,6 @@ Reset Votes on delegation: Nullify the delegator's/delegatee’s votes once they
 
 </details>
 
----
-
 <details>
   <summary><a id="h02---xxx"></a>[H02] - Removal of a Gauge Locks User Voting Power</summary>
   

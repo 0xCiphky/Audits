@@ -658,21 +658,89 @@ Add stricter access control to the updateLenderAuthorization function. If _isAut
 ---
 
 <details>
-  <summary><a id="m01---xxx"></a>[M01] - XXX</summary>
+  <summary><a id="m01---xxx"></a>[M01] - create2 and create return value not checked</summary>
   
   <br>
 
-  **Severity:** Medium
+**Severity:** Medium
 
-  **Summary:** 
+**Summary:** 
 
-  **Vulnerability Details:** 
+  The LibStoredInitCode library use the create and create2 opcodes to deploy markets or factories. Both create and create2 opcodes can fail without causing a revert, and such failures can only be detected by checking the return value, which will be 0 if the deployment fails.
 
-  **Impact:** 
+Deployment can fail due to:
 
-  **Tools Used:** 
+- A contract already exists at the destination address.
+- Insufficient value to transfer.
+- Sub context reverted.
+- Insufficient gas to execute the initialisation code.
+- Call depth limit reached.
+- The deployInitCode function correctly checks the return value to ensure that the contract was indeed deployed, rather than returning zero.
 
-  **Recommendation:** 
+```solidity
+function deployInitCode(bytes memory data) internal returns (address initCodeStorage) {
+        assembly {
+            let size := mload(data)
+            let createSize := add(size, 0x0b)
+            
+	    ...
+
+            mstore(data, or(shl(64, add(size, 1)), 0x6100005f81600a5f39f300))
+            // Deploy the code storage
+            initCodeStorage := create(0, add(data, 21), createSize)
+            // if (initCodeStorage == address(0)) revert InitCodeDeploymentFailed();
+            if iszero(initCodeStorage) {
+                mstore(0, 0x11c8c3c0)
+                revert(0x1c, 0x04)
+            }
+            // Restore `data.length`
+            mstore(data, size)
+        }
+    }
+```
+
+However, the createWithStoredInitCode function does not check the return value of create.
+
+```solidity
+function createWithStoredInitCode(address initCodeStorage, uint256 value) internal returns (address deployment) {
+        assembly {
+            let initCodePointer := mload(0x40)
+            let initCodeSize := sub(extcodesize(initCodeStorage), 1)
+            extcodecopy(initCodeStorage, initCodePointer, 1, initCodeSize)
+            deployment := create(value, initCodePointer, initCodeSize)
+        }
+    }
+```
+
+Additionally, the create2WithStoredInitCode function, used in the deployMarket and deployController functions, also does not check the return value of create2.
+
+```solidity
+function create2WithStoredInitCode(address initCodeStorage, bytes32 salt, uint256 value)
+        internal
+        returns (address deployment)
+    {
+        assembly {
+            let initCodePointer := mload(0x40)
+            let initCodeSize := sub(extcodesize(initCodeStorage), 1)
+            extcodecopy(initCodeStorage, initCodePointer, 1, initCodeSize)
+            deployment := create2(value, initCodePointer, initCodeSize, salt)
+        }
+    }
+```
+
+As a result, a failed deployment without a revert could still register a controller or market at a predetermined address, even though the contract failed to deploy.
+
+**Impact:** 
+
+If the return values of the create and create2 opcodes are not checked, failed deployments may go unnoticed. This oversight can have unintended consequences.
+
+**Tools Used:** 
+
+Manual analysis
+
+**Recommendation:** 
+
+Modify the code to include checks on the return value of create and create2 in the createWithStoredInitCode and create2WithStoredInitCode functions. This will ensure that a failed deployment is properly detected, preventing registration at a predetermined address.
 
 </details>
 

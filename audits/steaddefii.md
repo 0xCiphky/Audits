@@ -2,15 +2,11 @@
 
 ---
 
-[Contest Result:](https://www.codehawks.com/contests/clo38mm260001la08daw5cbuf) 8th Place
+Contest Result: [8th Place](https://www.codehawks.com/contests/clo38mm260001la08daw5cbuf)
 
 ## About
 
 Steadefi is the next-gen DeFi protocol designed to provide the highest and most sustainable real yields to our investors without the stress of constant position management or the prolonged downturns of the crypto markets.
-
----
-
-## Scope
 
 ---
 

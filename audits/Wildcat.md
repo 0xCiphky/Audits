@@ -419,21 +419,105 @@ function closeMarket() external onlyController nonReentrant {
 </details>
 
 <details>
-  <summary><a id="h04---xxx"></a>[H04] - XXX</summary>
+  <summary><a id="h04---xxx"></a>[H04] - Inability to Adjust Market Capacity and Close Market</summary>
   
   <br>
 
-  **Severity:** High
+**Severity:** High
 
-  **Summary:** 
+**Summary:** 
 
-  **Vulnerability Details:** 
+Borrowers have the capability to modify a market's maximum capacity and interest APR in the Wildcat Protocol. The code implements the setMaxTotalSupply and setAnnualInterestBips functions, both equipped with an onlyController modifier to restrict access to the controller contract.
 
-  **Impact:** 
+This is fine for setAnnualInterestBips as its invoked in the WildcatMarketController contract however the setMaxTotalSupply function is not meaning the maximum supply cannot be adjusted. The same issue occurs with the closeMarket function in the WildcatMarket contract meaning the borrower will not be able to close the market.
 
-  **Tools Used:** 
+**Vulnerability Details:** 
 
-  **Recommendation:** 
+The setMaxTotalSupply function enforces access control to permit only the controller contract to invoke it. However, the controller contract does not call this function, rendering it unusable and preventing adjustments to the maximum supply capacity.
+
+```solidity
+function setMaxTotalSupply(uint256 _maxTotalSupply) external onlyController nonReentrant {
+        MarketState memory state = _getUpdatedState();
+
+        if (_maxTotalSupply < state.totalSupply()) {
+            revert NewMaxSupplyTooLow();
+        }
+
+        state.maxTotalSupply = _maxTotalSupply.toUint128();
+        _writeState(state);
+        emit MaxTotalSupplyUpdated(_maxTotalSupply);
+    }
+```
+
+A similar issue arises with the closeMarket function, which also employs the onlyController modifier. Consequently, borrowers are currently unable to close markets.
+
+```solidity
+function closeMarket() external onlyController nonReentrant {
+        MarketState memory state = _getUpdatedState();
+        state.annualInterestBips = 0;
+        state.isClosed = true;
+        state.reserveRatioBips = 0;
+        if (_withdrawalData.unpaidBatches.length() > 0) {
+            revert CloseMarketWithUnpaidWithdrawals();
+        }
+        uint256 currentlyHeld = totalAssets();
+        uint256 totalDebts = state.totalDebts();
+        if (currentlyHeld < totalDebts) {
+            // Transfer remaining debts from borrower
+            asset.safeTransferFrom(borrower, address(this), totalDebts - currentlyHeld);
+        } else if (currentlyHeld > totalDebts) {
+            // Transfer excess assets to borrower
+            asset.safeTransfer(borrower, currentlyHeld - totalDebts);
+        }
+        _writeState(state);
+        emit MarketClosed(block.timestamp);
+    }
+```
+**Proof of concept:**
+
+```solidity
+function closeMarket() external onlyController nonReentrant {
+        MarketState memory state = _getUpdatedState();
+        state.annualInterestBips = 0;
+        state.isClosed = true;
+        state.reserveRatioBips = 0;
+        if (_withdrawalData.unpaidBatches.length() > 0) {
+            revert CloseMarketWithUnpaidWithdrawals();
+        }
+        uint256 currentlyHeld = totalAssets();
+        uint256 totalDebts = state.totalDebts();
+        if (currentlyHeld < totalDebts) {
+            // Transfer remaining debts from borrower
+            asset.safeTransferFrom(borrower, address(this), totalDebts - currentlyHeld);
+        } else if (currentlyHeld > totalDebts) {
+            // Transfer excess assets to borrower
+            asset.safeTransfer(borrower, currentlyHeld - totalDebts);
+        }
+        _writeState(state);
+        emit MarketClosed(block.timestamp);
+    }
+```
+
+```solidity
+function test_ChangeMaxCapacity() external {
+        // try to change max capacity
+        vm.expectRevert(IMarketEventsAndErrors.NotController.selector);
+        market.setMaxTotalSupply(100e18);
+    }
+```
+
+**Impact:** 
+
+A borrower will not be able to Adjust Market Capacity or Close the Market.
+
+**Tools Used:** 
+
+- Manual analysis
+- Foundry
+
+**Recommendation:** 
+
+Add functions in the WildcatMarketController contract that invoke the setMaxTotalSupply and closeMarket function so a borrower is able to Adjust Market Capacity and Close the Market.
 
 </details>
 

@@ -16,7 +16,7 @@
 3. [**The Wildcat Protocol - fixed-rate, undercollateralised credit facilities**](https://github.com/0xCiphky/Audits/blob/main/audits/Wildcat.md)
 4. [**Panoptic - options trading**](https://github.com/0xCiphky/Audits/blob/main/audits/Panoptic.md)
 
-   ### CodeHawks
+### CodeHawks
 1. [**Codehawks - Escrow Contract**](https://github.com/areezladhani/Audits/blob/main/audits/CodeHawks.md)
 2. [**Beedle - Oracle Free Perpetual Lending**](https://github.com/areezladhani/Audits/blob/main/audits/Beedle.md)
 4. [**Ditto - DittoETH**](https://github.com/0xCiphky/Audits/blob/main/audits/Ditto.md)

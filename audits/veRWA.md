@@ -12,9 +12,9 @@ The contracts implement a voting-escrow incentivization model for Canto RWA (Rea
 
 | ID  | Title                            | Severity   |
 |-----|----------------------------------|------------|
-| [H01](#h01---xxx) | Retained Voting Power After Undelegation                              | High       |
-| [H02](#h02---xxx) | Removal of a Gauge Locks User Voting Power                              | High       |
-| [QA Report](#QA---xxx) | Inflated Balance After Reward Token Reintroduction                              | Grade: A   |
+| [H01](#h01---xxx) | [Retained Voting Power After Undelegation](https://github.com/code-423n4/2023-08-verwa-findings/issues/177)                              | High       |
+| [H02](#h02---xxx) | [Removal of a Gauge Locks User Voting Power](https://github.com/code-423n4/2023-08-verwa-findings/issues/174)                              | High       |
+| [QA Report](#QA---xxx) | [Inflated Balance After Reward Token Reintroduction](https://github.com/code-423n4/2023-08-verwa-findings/issues/175)                              | Grade: A   |
 
 ---
 

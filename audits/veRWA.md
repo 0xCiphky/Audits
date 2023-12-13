@@ -1,7 +1,5 @@
 # veRWA - Voting-escrow
 
-The audit report will be updated with the findings as soon as the Code4rena team finalizes and releases their report.
-
 ---
 
 ## About
@@ -31,7 +29,7 @@ The contracts implement a voting-escrow incentivization model for Canto RWA (Rea
 
 ## **Severity:** 
   
-- High Risk
+High Risk
 
 ## **Summary:** 
 
@@ -171,7 +169,7 @@ Reset Votes on delegation: Nullify the delegator's/delegatee’s votes once they
 
 ## **Severity:** 
   
-- High Risk
+High Risk
 
 ## **Summary:** 
 

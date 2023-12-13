@@ -14,7 +14,7 @@ The system mints pegged assets (stablecoins) using an orderbook, using over-coll
 
 | ID  | Title                            | Severity   |
 |-----|----------------------------------|------------|
-| [H01](#h01---xxx) | Users can avoid liquidation while being under the primary liquidation ratio if on the last short record                              | High       |
+| [H01](#h01---xxx) | [Users can avoid liquidation while being under the primary liquidation ratio if on the last short record](https://www.codehawks.com/submissions/clm871gl00001mp081mzjdlwc/270)                              | High       |
 | [H02](#h02---xxx) | Flagger Ids are reused too early, potentially blocking flaggers from liquidating in there allocated time                              | High       |
 | [M01](#m01---xxx) | Combining shorts can incorrectly reset the shorts flag                              | Medium     |
 | [L01](#l01---xxx) | Last short does not reset liquidation flag after user gets fully liquidated, meaning healthy position will still be flagged if another order gets filled                              | Low/Info   |
@@ -38,15 +38,27 @@ The system mints pegged assets (stablecoins) using an orderbook, using over-coll
   
   <br>
 
-  **Severity:** High
+## **Severity:** 
 
-  **Summary:** 
+High
+
+## **Relevant GitHub Links**
+	
+https://github.com/Cyfrin/2023-09-ditto/blob/a93b4276420a092913f43169a353a6198d3c21b9/contracts/libraries/LibShortRecord.sol#L153
+
+https://github.com/Cyfrin/2023-09-ditto/blob/a93b4276420a092913f43169a353a6198d3c21b9/contracts/facets/MarginCallPrimaryFacet.sol#L43
+
+https://github.com/Cyfrin/2023-09-ditto/blob/a93b4276420a092913f43169a353a6198d3c21b9/contracts/facets/MarginCallPrimaryFacet.sol#L89
+
+https://github.com/Cyfrin/2023-09-ditto/blob/a93b4276420a092913f43169a353a6198d3c21b9/contracts/facets/MarginCallPrimaryFacet.sol#L351
+
+## **Summary:** 
 
   The protocol permits users to maintain up to 254 concurrent short records. When this limit is reached, any additional orders are appended to the final position, rather than creating a new one. A short record is subject to flagging if it breaches the primary liquidation ratio set by the protocol, leading to potential liquidation if it remains below the threshold for a predefined period.
 
 The vulnerability emerges from the dependency of liquidation times on the **`updatedAt`** value of shorts. For the last short record, the appending of any new orders provides an alternative pathway for updating the **`updatedAt`** value of shorts, enabling users to circumvent liquidation by submitting minimal shorts to block liquidation by adjusting the time difference, thus avoiding liquidation even when they do not meet the collateral requirements for a healthy state.
 
-  **Vulnerability Details:** 
+## **Vulnerability Details:** 
 
 lets take a look at the code to see how this works.
 1. **Flagging of Short Record:**
@@ -209,15 +221,15 @@ function merge(
 ```
 </details>
 
-  **Impact:** 
+## **Impact:** 
 
   This allows a user with a position under the primaryLiquidationCR to avoid primary liquidation even if the short is in the valid time ranges for liquidation.
 
-  **Tools Used:** 
+## **Tools Used:** 
   - Manual analysis
   - Foundry
 
-  **Recommendation:** 
+## **Recommendation:** 
 
   Impose stricter conditions for updating the last short record when the position is flagged and remains under the **`primaryLiquidationCR`** post-merge, similar to how the **`combineShorts`** function works.
 

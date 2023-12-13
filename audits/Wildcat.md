@@ -25,6 +25,8 @@ Wildcat's primary offering is markets. They're credit escrow mechanisms where ne
 
 ## Detailed Findings
 
+### High Findings
+
 <details>
   <summary><a id="h01---xxx"></a>[H01] - When withdrawalBatchDuration is set to zero lenders can withdraw more then allocated to a batch</summary>
   
@@ -755,6 +757,8 @@ Add stricter access control to the updateLenderAuthorization function. If _isAut
 </details>
 
 ---
+
+### Medium Findings
 
 <details>
   <summary><a id="m01---xxx"></a>[M01] - create2 and create return value not checked</summary>

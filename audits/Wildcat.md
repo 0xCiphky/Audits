@@ -30,13 +30,15 @@ Wildcat's primary offering is markets. They're credit escrow mechanisms where ne
   
   <br>
 
-**Severity:** High
+## **Severity:** 
 
-**Summary:** 
+High
+
+## **Summary:** 
 
 The Wildcat protocol utilizes a withdrawal cycle where lenders call queueWithdrawals which then goes through a set amount of time (withdrawal duration period) before a withdrawal can be executed (if the protocol has enough funds to cover the withdrawal). Withdrawal requests that could not be fully honored at the end of their withdrawal cycle are batched together, marked as expired withdrawals, and added to the withdrawal queue. These batches are tracked using the time of expiry, and when assets are returned to a market with a non-zero withdrawal queue, assets are immediately routed to the unclaimed withdrawals pool and can subsequently be claimed by lenders with the oldest expired withdrawals first.
 
-**Vulnerability Details:** 
+## **Vulnerability Details:** 
 
 The withdrawalBatchDuration can be set to zero so lenders do not have to wait before being able to withdraw funds from the market; however, this can cause issues where lenders in a batch can withdraw more than their pro-rata share of the batch's paid assets.
 
@@ -149,7 +151,7 @@ Lets see what the batch looks like now
 
 - The batch.normalizedAmountPaid is 5, meaning the Lenders' withdrawal amount surpassed the batch's current limit.
 
-**Impact:** 
+## **Impact:** 
 
 This will break the following invariant in the protocol:
 
@@ -157,12 +159,12 @@ This will break the following invariant in the protocol:
 
 It will also mean that funds reserved for other batches may not be able to be fulfilled even if the batch's normalizedAmountPaid number shows that it should be able to.
 
-**Tools Used:** 
+## **Tools Used:** 
 
 - Manual analysis
 - Foundry
 
-**Recommendation:** 
+## **Recommendation:** 
 
 Review the protocol's withdrawal mechanism and consider adjusting the behaviour of withdrawals when withdrawalBatchDuration is set to zero to ensure that lenders cannot withdraw more than their pro-rata share of the batch's paid assets.
 

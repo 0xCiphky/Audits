@@ -1,8 +1,8 @@
 # Ditto - DittoETH
 
----
-
 Contest Result: [6th Place](https://www.codehawks.com/contests/clm871gl00001mp081mzjdlwc)
+
+---
 
 ## About
 

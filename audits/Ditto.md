@@ -278,8 +278,6 @@ function createShortRecord(
 
 </details>
 
----
-
 <details>
   <summary><a id="h02---xxx"></a>[H02] - Flagger Ids are reused too early, potentially blocking flaggers from liquidating in there allocated time</summary>
   
@@ -386,8 +384,6 @@ if (timeDiff > LibAsset.secondLiquidationTime(cusd)) {
 
 </details>
 
----
-
 ### Medium Findings
 
 <details>
@@ -492,8 +488,6 @@ As you can see the updateErcDebt function is not called anywhere in the function
 ```
 
 </details>
-
----
 
 ### Low/Info Findings
 
@@ -642,8 +636,6 @@ if (m.short.ercDebt == m.ercDebtMatched) {
 
 </details>
 
----
-
 <details>
   <summary><a id="l02---xxx"></a>[L02] - Last short does not reset liquidation flag after user exits position fully, meaning healthy position will still be flagged if another order gets filled</summary>
   
@@ -777,8 +769,6 @@ Ensure the flag is reset when a user fully pays off their short, so if it was th
 ```
 
 </details>
-
----
 
 <details>
   <summary><a id="l03---xxx"></a>[L03] - Partial filled short does not reset liquidation flag after user gets fully liquidated, meaning healthy position will still be flagged if the rest of the order gets filled</summary>
@@ -914,8 +904,6 @@ if (m.short.ercDebt == m.ercDebtMatched) {
 
 </details>
 
----
-
 <details>
   <summary><a id="l04---xxx"></a>[L04] - Partial filled short does not reset flag after user exits position fully, meaning healthy position will still be flagged if the rest of the order gets filled</summary>
   
@@ -1045,8 +1033,6 @@ https://github.com/Cyfrin/2023-09-ditto/blob/a93b4276420a092913f43169a353a6198d3
 
 </details>
 
----
-
 <details>
   <summary><a id="l05---xxx"></a>[L05] - Protocol doesn’t take into account RETH/STETH requirements </summary>
   
@@ -1101,8 +1087,6 @@ The lack of checks to these limitations can lead to transaction reverts if any o
 When interacting with the respective bridges, the protocol should ensure that users comply with the allowed ranges and that the bridges are accepting deposits.
 
 </details>
-
----
 
 <details>
   <summary><a id="l06---xxx"></a>[L06] - User can accidentally or maliciously combine the same short</summary>
@@ -1255,8 +1239,6 @@ function combineShorts(address asset, uint8[] memory ids)
 
 </details>
 
----
-
 <details>
   <summary><a id="l07---xxx"></a>[L07] - Users who are flagged and get back to a healthy ratio through price increase are still flagged contrary to the docs </summary>
   
@@ -1295,8 +1277,6 @@ Manual analysis
 Revise the flagShort function or introduce a new mechanism allowing users to manually reset the flag on their positions once they have regained a healthy state.
 
 </details>
-
----
 
 <details>
   <summary><a id="l08---xxx"></a>[L08] - collateral ratio can never be the max</summary>
@@ -1364,8 +1344,6 @@ Manual Analysis
 Update the condition to use the **`>`** operator instead of **`≥`**, allowing users to set a CR exactly equal to **`Constants.CRATIO_MAX`**.
 
 </details>
-
----
 
 <details>
   <summary><a id="l09---xxx"></a>[L09] - Event in secondaryLiquidation could be misused to show false liquidations</summary>

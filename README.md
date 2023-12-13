@@ -25,5 +25,5 @@
 ### Code4rena
 1. [**Dopex - Decentralized Options Exchange**](https://github.com/areezladhani/Audits/blob/main/audits/Dopex.md)
 2. [**veRWA - Voting-Escrow**](https://github.com/areezladhani/Audits/blob/main/audits/veRWA.md)
-3. [**The Wildcat Protocol**]()
+3. [**The Wildcat Protocol - fixed-rate, undercollateralised credit facilities**](https://github.com/0xCiphky/Audits/blob/main/audits/Wildcat.md)
 4. [**Panoptic - options trading**](https://github.com/0xCiphky/Audits/blob/main/audits/Panoptic.md) 

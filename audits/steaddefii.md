@@ -403,59 +403,195 @@ Implement additional functionality within the **`emergencyPause`** function to e
 </details>
 
 <details>
-  <summary><a id="m03---xxx"></a>[M03] - XXX</summary>
+  <summary><a id="m03---xxx"></a>[M03] - emergencyResume does not handle the afterDepositCancellation case correctly</summary>
   
   <br>
 
-  **Severity:** Medium
+**Severity:** Medium
 
-  **Summary:** 
+**Summary:** 
 
-  **Vulnerability Details:** 
+  The **`emergencyResume`** function is intended to recover the vault's liquidity following an **`emergencyPause`**. It operates under the assumption of a successful deposit call. However, if the deposit call is cancelled by GMX, the **`emergencyResume`** function does not account for this scenario, potentially locking funds.
 
-  **Impact:** 
+**Vulnerability Details:** 
 
-  **Tools Used:** 
+When **`emergencyResume`** is invoked, it sets the vault's status to "Resume" and deposits all LP tokens back into the pool. The function is designed to execute when the vault status is "Paused" and can be triggered by an approved keeper.
 
-  **Recommendation:** 
+```solidity
+function emergencyResume(
+    GMXTypes.Store storage self
+  ) external {
+    GMXChecks.beforeEmergencyResumeChecks(self);
+
+    self.status = GMXTypes.Status.Resume;
+
+    self.refundee = payable(msg.sender);
+
+    GMXTypes.AddLiquidityParams memory _alp;
+
+    _alp.tokenAAmt = self.tokenA.balanceOf(address(this));
+    _alp.tokenBAmt = self.tokenB.balanceOf(address(this));
+    _alp.executionFee = msg.value;
+
+    GMXManager.addLiquidity(
+      self,
+      _alp
+    );
+  }
+```
+
+Should the deposit fail, the callback contract's **`afterDepositCancellation`** is expected to revert, which does not impact the continuation of the GMX execution. After the cancellation occurs, the vault status is "Resume", and the liquidity is not re-added to the pool.
+
+```solidity
+function afterDepositCancellation(
+    bytes32 depositKey,
+    IDeposit.Props memory /* depositProps */,
+    IEvent.Props memory /* eventData */
+  ) external onlyController {
+    GMXTypes.Store memory _store = vault.store();
+
+    if (_store.status == GMXTypes.Status.Deposit) {
+      if (_store.depositCache.depositKey == depositKey)
+        vault.processDepositCancellation();
+    } else if (_store.status == GMXTypes.Status.Rebalance_Add) {
+      if (_store.rebalanceCache.depositKey == depositKey)
+        vault.processRebalanceAddCancellation();
+    } else if (_store.status == GMXTypes.Status.Compound) {
+      if (_store.compoundCache.depositKey == depositKey)
+        vault.processCompoundCancellation();
+    } else {
+      revert Errors.DepositCancellationCallback();
+    }
+  }
+```
+
+Given this, another attempt to execute **`emergencyResume`** will fail because the vault status is not "Paused".
+
+```solidity
+function beforeEmergencyResumeChecks (
+    GMXTypes.Store storage self
+  ) external view {
+    if (self.status != GMXTypes.Status.Paused)
+      revert Errors.NotAllowedInCurrentVaultStatus();
+  }
+```
+
+In this state, an attempt to revert to "Paused" status via **`emergencyPause`** could fail in GMXManager.removeLiquidity, as there are no tokens to send back to the GMX pool, leading to a potential fund lock within the contract.
+
+**Impact:** 
+
+The current implementation may result in funds being irretrievably locked within the contract. 
+
+**Tools Used:** 
+
+Manual Analysis
+
+**Recommendation:** 
+
+To address this issue, handle the afterDepositCancellation case correctly by allowing emergencyResume to be called again.
 
 </details>
 
 <details>
-  <summary><a id="m04---xxx"></a>[M04] - XXX</summary>
+  <summary><a id="m04---xxx"></a>[M04] - ExchangeRouter and gmxOracle address can’t be modified</summary>
   
   <br>
 
-  **Severity:** Medium
+**Severity:** Medium
 
-  **Summary:** 
+**Summary:** 
 
-  **Vulnerability Details:** 
+  GMXVault's current implementation sets the **`gmxOracle`** and **`exchangeRouter`** addresses at deployment with no capability to update them. Given that GMX documentation suggests the potential for these addresses to change in the future, the lack of an update mechanism could result in operational issues if and when an update is required.
 
-  **Impact:** 
+”If using contracts such as the ExchangeRouter, Oracle or Reader do note that their addresses will change as new logic is added”
 
-  **Tools Used:** 
+The GMXVault contract is initially configured with the **`gmxOracle`** and **`exchangeRouter`** addresses, during the construction of the contract. However there is no functionality to change these addresses down the line.
 
-  **Recommendation:** 
+```solidity
+constructor(string memory name, string memory symbol, GMXTypes.Store memory store_)
+        ERC20(name, symbol)
+        Ownable(msg.sender)
+    {
+			
+				_store.gmxOracle = IGMXOracle(store_.gmxOracle);
+
+        _store.exchangeRouter = IExchangeRouter(store_.exchangeRouter);
+        _store.router = store_.router;
+        _store.depositVault = store_.depositVault;
+        _store.withdrawalVault = store_.withdrawalVault;
+        _store.roleStore = store_.roleStore;
+
+        _store.swapRouter = ISwap(store_.swapRouter);
+
+        ...
+    }
+```
+
+**Impact:** 
+
+The inability to update these addresses means that GMXVault risks becoming incompatible with newer versions of related contracts or could continue to rely on outdated or potentially insecure versions.
+
+**Tools Used:** 
+
+Manual analysis
+
+**Recommendation:** 
+
+Add owner-only functions that enable the updating of the **`gmxOracle`** and **`exchangeRouter`** addresses.
 
 </details>
 
 <details>
-  <summary><a id="m05---xxx"></a>[M05] - XXX</summary>
+  <summary><a id="m05---xxx"></a>[M05] - Inaccurate Fee Due to missing lastFeeCollected Update Before feePerSecond Modification</summary>
   
   <br>
 
-  **Severity:** Medium
+**Severity:** Medium
 
-  **Summary:** 
+**Summary:** 
 
-  **Vulnerability Details:** 
+  The protocol charges a management fee based on the **`feePerSecond`** variable, which dictates the rate at which new vault tokens are minted as fees via the **`mintFee`** function. An administrative function **`updateFeePerSecond`** allows the owner to alter this fee rate. However, the current implementation does not account for accrued fees before the update, potentially leading to incorrect fee calculation.
 
-  **Impact:** 
+**Vulnerability Details:** 
 
-  **Tools Used:** 
+The contract's logic fails to account for outstanding fees at the old rate prior to updating the **`feePerSecond`**. As it stands, the **`updateFeePerSecond`** function changes the fee rate without triggering a **`mintFee`**, which would update the **`lastFeeCollected`** timestamp and mint the correct amount of fees owed up until that point.
 
-  **Recommendation:** 
+```solidity
+function updateFeePerSecond(uint256 feePerSecond) external onlyOwner {
+        _store.feePerSecond = feePerSecond;
+        emit FeePerSecondUpdated(feePerSecond);
+    }
+```
+
+**Scenario Illustration:**
+
+- User A deposits, triggering **`mintFee`** and setting **`lastFeeCollected`** to the current **`block.timestamp`**.
+- After two hours without transactions, no additional **`mintFee`** calls occur.
+- The owner invokes **`updateFeePerSecond`** to increase the fee by 10%.
+- User B deposits, and **`mintFee`** now calculates fees since **`lastFeeCollected`** using the new, higher rate, incorrectly applying it to the period before the rate change.
+
+**Impact:** 
+
+The impact is twofold:
+
+- An increased **`feePerSecond`** results in excessively high fees charged for the period before the update.
+- A decreased **`feePerSecond`** leads to lower-than-expected fees for the same duration.
+
+**Tools Used:** 
+
+Manual Analysis
+
+**Recommendation:** 
+
+Ensure the fees are accurately accounted for at their respective rates by updating **`lastFeeCollected`** to the current timestamp prior to altering the **`feePerSecond`**. This can be achieved by invoking **`mintFee`** within the **`updateFeePerSecond`** function to settle all pending fees first:
+
+```solidity
+function updateFeePerSecond(uint256 feePerSecond) external onlyOwner {
+		self.vault.mintFee();
+        _store.feePerSecond = feePerSecond;
+        emit FeePerSecondUpdated(feePerSecond);
+    }
+```
 
 </details>
 

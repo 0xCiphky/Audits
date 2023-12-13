@@ -14,7 +14,7 @@ The system mints pegged assets (stablecoins) using an orderbook, using over-coll
 
 | ID  | Title                            | Severity   |
 |-----|----------------------------------|------------|
-| [H01](#h01---xxx) | [Users can avoid liquidation while being under the primary liquidation ratio if on the last short record](https://www.codehawks.com/submissions/clm871gl00001mp081mzjdlwc/270)                              | High       |
+| [H01](#h01---xxx) | [Users can avoid liquidation while being under the primary liquidation ratio if on the last short record](https://www.codehawks.com/report/clm871gl00001mp081mzjdlwc#H-03)                             | High       |
 | [H02](#h02---xxx) | Flagger Ids are reused too early, potentially blocking flaggers from liquidating in there allocated time                              | High       |
 | [M01](#m01---xxx) | Combining shorts can incorrectly reset the shorts flag                              | Medium     |
 | [L01](#l01---xxx) | Last short does not reset liquidation flag after user gets fully liquidated, meaning healthy position will still be flagged if another order gets filled                              | Low/Info   |

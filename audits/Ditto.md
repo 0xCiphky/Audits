@@ -17,15 +17,15 @@ The system mints pegged assets (stablecoins) using an orderbook, using over-coll
 | [H01](#h01---xxx) | [Users can avoid liquidation while being under the primary liquidation ratio if on the last short record](https://www.codehawks.com/report/clm871gl00001mp081mzjdlwc#H-03)                             | High       |
 | [H02](#h02---xxx) | [Flagger Ids are reused too early, potentially blocking flaggers from liquidating in there allocated time](https://www.codehawks.com/submissions/clm871gl00001mp081mzjdlwc/177)                              | High       |
 | [M01](#m01---xxx) | [Combining shorts can incorrectly reset the shorts flag](https://www.codehawks.com/report/clm871gl00001mp081mzjdlwc#M-07)                              | Medium     |
-| [L01](#l01---xxx) | Last short does not reset liquidation flag after user gets fully liquidated, meaning healthy position will still be flagged if another order gets filled                              | Low/Info   |
-| [L02](#l02---xxx) | Last short does not reset liquidation flag after user exits position fully, meaning healthy position will still be flagged if another order gets filled                              | Low/Info   |
-| [L03](#l03---xxx) | Partial filled short does not reset liquidation flag after user gets fully liquidated, meaning healthy position will still be flagged if the rest of the order gets filled                              | Low/Info   |
-| [L04](#l04---xxx) | Partial filled short does not reset flag after user exits position fully, meaning healthy position will still be flagged if the rest of the order gets filled                              | Low/Info   |
-| [L05](#l05---xxx) | Protocol doesn’t take into account RETH/STETH requirements                              | Low/Info   |
-| [L06](#l06---xxx) | User can accidentally or maliciously combine the same short                              | Low/Info   |
-| [L07](#l07---xxx) | Users who are flagged and get back to a healthy ratio through price increase are still flagged contrary to the docs                              | Low/Info   |
-| [L08](#l08---xxx) | collateral ratio can never be the max                              | Low/Info   |
-| [L09](#l09---xxx) | Event in secondaryLiquidation could be misused to show false liquidations                              | Low/Info   |
+| [L01](#l01---xxx) | [Last short does not reset liquidation flag after user gets fully liquidated, meaning healthy position will still be flagged if another order gets filled](https://www.codehawks.com/submissions/clm871gl00001mp081mzjdlwc/272)                             | Low/Info   |
+| [L02](#l02---xxx) | [Last short does not reset liquidation flag after user exits position fully, meaning healthy position will still be flagged if another order gets filled](https://www.codehawks.com/submissions/clm871gl00001mp081mzjdlwc/271)                              | Low/Info   |
+| [L03](#l03---xxx) | [Partial filled short does not reset liquidation flag after user gets fully liquidated, meaning healthy position will still be flagged if the rest of the order gets filled](https://www.codehawks.com/report/clm871gl00001mp081mzjdlwc#L-14)                              | Low/Info   |
+| [L04](#l04---xxx) | [Partial filled short does not reset flag after user exits position fully, meaning healthy position will still be flagged if the rest of the order gets filled](https://www.codehawks.com/submissions/clm871gl00001mp081mzjdlwc/175)                              | Low/Info   |
+| [L05](#l05---xxx) | [Protocol doesn’t take into account RETH/STETH requirements](https://www.codehawks.com/submissions/clm871gl00001mp081mzjdlwc/276)                              | Low/Info   |
+| [L06](#l06---xxx) | [User can accidentally or maliciously combine the same short](https://www.codehawks.com/submissions/clm871gl00001mp081mzjdlwc/273)                              | Low/Info   |
+| [L07](#l07---xxx) | [Users who are flagged and get back to a healthy ratio through price increase are still flagged contrary to the docs](https://www.codehawks.com/submissions/clm871gl00001mp081mzjdlwc/178)                              | Low/Info   |
+| [L08](#l08---xxx) | [collateral ratio can never be the max](https://www.codehawks.com/submissions/clm871gl00001mp081mzjdlwc/279)                              | Low/Info   |
+| [L09](#l09---xxx) | [Event in secondaryLiquidation could be misused to show false liquidations](https://www.codehawks.com/report/clm871gl00001mp081mzjdlwc#L-19)                              | Low/Info   |
 
 ---
 

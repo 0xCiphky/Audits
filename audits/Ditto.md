@@ -31,6 +31,8 @@ The system mints pegged assets (stablecoins) using an orderbook, using over-coll
 
 ## Detailed Findings
 
+---
+
 ### High Findings
 
 <details>
@@ -384,6 +386,8 @@ if (timeDiff > LibAsset.secondLiquidationTime(cusd)) {
 
 </details>
 
+---
+
 ### Medium Findings
 
 <details>
@@ -488,6 +492,8 @@ As you can see the updateErcDebt function is not called anywhere in the function
 ```
 
 </details>
+
+--- 
 
 ### Low/Info Findings
 

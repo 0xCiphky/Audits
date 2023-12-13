@@ -1,6 +1,6 @@
 # The Wildcat Protocol  - A protocol for fixed-rate, undercollateralised credit facilities
 
-[Contest Result:](https://code4rena.com/audits/2023-10-the-wildcat-protocol#top) 1st Place
+Contest Result: [1st Place]((https://code4rena.com/audits/2023-10-the-wildcat-protocol#top))
 
 ---
 

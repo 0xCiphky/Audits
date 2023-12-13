@@ -31,6 +31,8 @@ The system mints pegged assets (stablecoins) using an orderbook, using over-coll
 
 ## Detailed Findings
 
+### High Findings
+
 <details>
   <summary><a id="h01---xxx"></a>[H01] - Users can avoid liquidation while being under the primary liquidation ratio if on the last short record</summary>
   
@@ -362,6 +364,8 @@ if (timeDiff > LibAsset.secondLiquidationTime(cusd)) {
 
 ---
 
+### Medium Findings
+
 <details>
   <summary><a id="m01---xxx"></a>[M01] - Combining shorts can incorrectly reset the shorts flag</summary>
   
@@ -458,6 +462,8 @@ As you can see the updateErcDebt function is not called anywhere in the function
 </details>
 
 ---
+
+### Low/Info Findings
 
 <details>
   <summary><a id="l01---xxx"></a>[L01] - Last short does not reset liquidation flag after user gets fully liquidated, meaning healthy position will still be flagged if another order gets filled</summary>

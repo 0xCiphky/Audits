@@ -2,7 +2,7 @@
 
 ---
 
-[Contest Result: 8th Place (2H/5M)](https://www.codehawks.com/contests/clo38mm260001la08daw5cbuf)
+[Contest Result:](https://www.codehawks.com/contests/clo38mm260001la08daw5cbuf) 8th Place
 
 ## About
 

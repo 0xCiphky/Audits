@@ -15,7 +15,7 @@ The system mints pegged assets (stablecoins) using an orderbook, using over-coll
 | ID  | Title                            | Severity   |
 |-----|----------------------------------|------------|
 | [H01](#h01---xxx) | [Users can avoid liquidation while being under the primary liquidation ratio if on the last short record](https://www.codehawks.com/report/clm871gl00001mp081mzjdlwc#H-03)                             | High       |
-| [H02](#h02---xxx) | Flagger Ids are reused too early, potentially blocking flaggers from liquidating in there allocated time                              | High       |
+| [H02](#h02---xxx) | [Flagger Ids are reused too early, potentially blocking flaggers from liquidating in there allocated time](https://www.codehawks.com/submissions/clm871gl00001mp081mzjdlwc/177)                              | High       |
 | [M01](#m01---xxx) | Combining shorts can incorrectly reset the shorts flag                              | Medium     |
 | [L01](#l01---xxx) | Last short does not reset liquidation flag after user gets fully liquidated, meaning healthy position will still be flagged if another order gets filled                              | Low/Info   |
 | [L02](#l02---xxx) | Last short does not reset liquidation flag after user exits position fully, meaning healthy position will still be flagged if another order gets filled                              | Low/Info   |
@@ -283,13 +283,23 @@ function createShortRecord(
   
   <br>
 
-**Severity:** High
+## **Severity:** 
 
-**Summary:** 
+High
+
+## **Relevant GitHub Links**
+	
+https://github.com/Cyfrin/2023-09-ditto/blob/a93b4276420a092913f43169a353a6198d3c21b9/contracts/facets/MarginCallPrimaryFacet.sol#L43
+
+https://github.com/Cyfrin/2023-09-ditto/blob/a93b4276420a092913f43169a353a6198d3c21b9/contracts/facets/MarginCallPrimaryFacet.sol#L351
+
+https://github.com/Cyfrin/2023-09-ditto/blob/a93b4276420a092913f43169a353a6198d3c21b9/contracts/libraries/LibShortRecord.sol#L377
+
+## **Summary:** 
 
   The protocol enables users to flag positions that fall below the primary collateral ratio. Subsequently, the shorter is granted a time frame to restore their position above this ratio to avoid liquidation. If the position remains below the primary collateral ratio, the flagger attains the exclusive right to liquidate it before anyone else.
 
-**Vulnerability Details:** 
+## **Vulnerability Details:** 
 
   To optimize the process, the protocol reuses flagger IDs. However, a flaw exists in the protocol where a flagger ID is available for reuse after the firstLiquidationTime instead of after the secondLiquidationTime.
 
@@ -353,16 +363,16 @@ uint256 secondLiquidationTime = LibAsset.secondLiquidationTime(m.asset);
 ```
 </details>
 
-**Impact:** 
+## **Impact:** 
 
   Flaggers is unable to liquidate short positions during their designated time slots
 
-**Tools Used:** 
+## **Tools Used:** 
 
   - Manual Analysis
   - Foundry
 
-**Recommendation:** 
+## **Recommendation:** 
 
   Ensure that flagger IDs are reused only after the secondLiquidationTime.
 

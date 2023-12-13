@@ -500,7 +500,9 @@ As you can see the updateErcDebt function is not called anywhere in the function
   
   <br>
 
-## **Severity:** Low
+## **Severity:** 
+
+Low
 
 ## **Summary:** 
 
@@ -637,7 +639,9 @@ if (m.short.ercDebt == m.ercDebtMatched) {
   
   <br>
 
-## **Severity:** Low
+## **Severity:** 
+
+Low
 
 ## **Summary:** 
 

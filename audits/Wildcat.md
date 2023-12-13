@@ -171,21 +171,96 @@ Review the protocol's withdrawal mechanism and consider adjusting the behaviour 
 </details>
 
 <details>
-  <summary><a id="h02---xxx"></a>[H02] - XXX</summary>
+  <summary><a id="h02---xxx"></a>[H02] - Create escrow parameters are mixed up, giving the sanctioned user the borrower role</summary>
   
   <br>
 
-  **Severity:** High
+**Severity:** High
 
-  **Summary:** 
+**Summary:** 
 
-  **Vulnerability Details:** 
+  The Wildcat Protocol implements the ability to deploy an escrow contract between the borrower of a market and the lender in question in the event that a lender address is sanctioned. This is done by the borrower calling the nukeFromOrbit function with the borrower's address. If the lender is indeed sanctioned, it creates an escrow contract, transfers the vault balance corresponding to the lender from the market to the escrow, erases the lender's market token balance, and blocks them from any further interaction with the market itself.
 
-  **Impact:** 
+However, an issue arises from the mixed-up parameters in the createEscrow function, which switches the roles of the borrower and the lender within the created escrow.
 
-  **Tools Used:** 
+**Vulnerability Details:** 
 
-  **Recommendation:** 
+The createEscrow function is used in two places in the protocol, in the executeWithdrawal and the _blockAccount functions. Both functions implement it in the following way:
+
+```solidity
+// _blockAccount
+address escrow = IWildcatSanctionsSentinel(sentinel).createEscrow(accountAddress, borrower, address(this));
+
+// executeWithdrawal
+address escrow = IWildcatSanctionsSentinel(sentinel).createEscrow(accountAddress, borrower, address(asset));
+```
+
+Now let's look at the createEscrow function and how it's implemented. The issue is the way we order the parameters. In the createEscrow function, we can see that the order is borrower, account, asset, whereas in the _blockAccount and executeWithdrawal functions, it is accountAddress, borrower, address(asset).
+
+```solidity
+function createEscrow(
+    address borrower,
+    address account,
+    address asset
+  ) public override returns (address escrowContract) {
+    if (!IWildcatArchController(archController).isRegisteredMarket(msg.sender)) {
+      revert NotRegisteredMarket();
+    }
+```
+As we can see, the borrower and sanctioned lenders are in the incorrect order, meaning for the created escrow, they will switch roles. This would allow the sanctioned user to override the sanction and release the sanctioned funds.
+
+The lender can call overrideSanction in WildcatSanctionsSentinel, this should not normally work however the roles are switched and the lenders address is the borrower in the escrow and vice versa.
+
+```solidity
+function overrideSanction(address account) public override {
+    sanctionOverrides[msg.sender][account] = true;
+    emit SanctionOverride(msg.sender, account);
+  }
+```
+
+Now the lender can call releaseEscrow which will pass.
+
+**Proof of concept:** 
+
+```solidity
+function test_nukeFromOrbit_WrongEscrowAddress() external {
+        _deposit(alice, 1e18);
+        // wrong way to get escrow address
+        address escrowWrong = sanctionsSentinel.getEscrowAddress(alice, borrower, address(market));
+        // correct way to get escrow address
+        address escrow10 = sanctionsSentinel.getEscrowAddress(borrower, alice, address(market));
+        // sanction alice
+        sanctionsSentinel.sanction(alice);
+        // nuke alice
+        market.nukeFromOrbit(alice);
+        // check alice role
+        assertEq(uint256(market.getAccountRole(alice)), uint256(AuthRole.Blocked), "account role should be Blocked");
+        // check sanction override mapping
+        assertEq(sanctionsSentinel.sanctionOverrides(borrower, escrowWrong), false);
+        assertEq(sanctionsSentinel.sanctionOverrides(alice, escrowWrong), true);
+    }
+```
+
+**Impact:** 
+
+The borrower and lender roles will be switched in the created escrow. A sanctioned lender can release their sanctioned funds without the borrower authorization or the sanction being overturned.
+
+**Tools Used:** 
+
+- Manual analysis
+- Foundry
+
+**Recommendation:** 
+
+Use the correct order for the parameters in createEscrow in the _blockAccount and executeWithdrawal functions.
+
+```solidity
+// _blockAccount
+address escrow = IWildcatSanctionsSentinel(sentinel).createEscrow(borrower, accountAddress, address(this));
+
+// executeWithdrawal
+address escrow = IWildcatSanctionsSentinel(sentinel).createEscrow(borrower, accountAddress, address(asset));
+```
 
 </details>
 

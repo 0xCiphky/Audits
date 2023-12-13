@@ -12,14 +12,14 @@ Wildcat's primary offering is markets. They're credit escrow mechanisms where ne
 
 | ID  | Title                            | Severity   |
 |-----|----------------------------------|------------|
-| [H01](#h01---xxx) | When withdrawalBatchDuration is set to zero lenders can withdraw more then allocated to a batch                              | High       |
-| [H02](#h02---xxx) | Create escrow parameters are mixed up, giving the sanctioned user the borrower role                              | High       |
-| [H03](#h03---xxx) | Borrower closing market while secondsRemainingWithPenalty isn’t zero will lead to lenders not able to fully withdraw                              | High       |
-| [H04](#h04---xxx) | Inability to Adjust Market Capacity and Close Market                              | High       |
-| [H05](#h05---xxx) | Lenders can avoid being blocked and keep earning fees                              | High       |
-| [M01](#m01---xxx) | create2 and create return value not checked                              | Medium     |
-| [M02](#m02---xxx) | max/min constraints are not enforced on annualInterestBips after deployment                              | Medium     |
-| [M03](#m03---xxx) | Sanctioned lender will still accrue interest contrary to the docs                              | Medium     |
+| [H01](#h01---xxx) | [When withdrawalBatchDuration is set to zero lenders can withdraw more then allocated to a batch](https://github.com/code-423n4/2023-10-wildcat-findings/issues/410) | High |
+| [H02](#h02---xxx) | [Create escrow parameters are mixed up, giving the sanctioned user the borrower role](https://github.com/code-423n4/2023-10-wildcat-findings/issues/82)                              | High       |
+| [H03](#h03---xxx) | [Borrower closing market while secondsRemainingWithPenalty isn’t zero will lead to lenders not able to fully withdraw](https://github.com/code-423n4/2023-10-wildcat-findings/issues/396)                              | High       |
+| [H04](#h04---xxx) | [Inability to Adjust Market Capacity and Close Market](https://github.com/code-423n4/2023-10-wildcat-findings/issues/167)                              | High       |
+| [H05](#h05---xxx) | [Lenders can avoid being blocked and keep earning fees](https://github.com/code-423n4/2023-10-wildcat-findings/issues/81)                              | High       |
+| [M01](#m01---xxx) | [create2 and create return value not checked](https://github.com/code-423n4/2023-10-wildcat-findings/issues/403)                              | Medium     |
+| [M02](#m02---xxx) | [max/min constraints are not enforced on annualInterestBips after deployment](https://github.com/code-423n4/2023-10-wildcat-findings/issues/85)                              | Medium     |
+| [M03](#m03---xxx) | [Sanctioned lender will still accrue interest contrary to the docs](https://github.com/code-423n4/2023-10-wildcat-findings/issues/402)                              | Medium     |
 
 ---
 

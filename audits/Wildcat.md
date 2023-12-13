@@ -1,14 +1,12 @@
-# Temp
+# The Wildcat Protocol  - a protocol for fixed-rate, undercollateralised credit facilities
+
+[Contest Result: 1st Place (5H/3M)](https://code4rena.com/audits/2023-10-the-wildcat-protocol#top)
 
 ---
 
 ## About
 
----
-
-## Scope
-
----
+Wildcat's primary offering is markets. They're credit escrow mechanisms where nearly every single parameter that you'd be interested in modifying can be modified at launch. Subsequent to launch, base APR and capacities can be adjusted by the borrower at will, with some caveats on reducing the former that effectively constitutes a ragequit option for lenders if they disagree with the change.
 
 ## Findings Summary
 

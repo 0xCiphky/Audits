@@ -266,15 +266,17 @@ Review the protocol's withdrawal mechanism and consider adjusting the behaviour 
   
   <br>
 
-**Severity:** High
+## **Severity:** 
 
-**Summary:** 
+High
+
+## **Summary:** 
 
   The Wildcat Protocol implements the ability to deploy an escrow contract between the borrower of a market and the lender in question in the event that a lender address is sanctioned. This is done by the borrower calling the nukeFromOrbit function with the borrower's address. If the lender is indeed sanctioned, it creates an escrow contract, transfers the vault balance corresponding to the lender from the market to the escrow, erases the lender's market token balance, and blocks them from any further interaction with the market itself.
 
 However, an issue arises from the mixed-up parameters in the createEscrow function, which switches the roles of the borrower and the lender within the created escrow.
 
-**Vulnerability Details:** 
+## **Vulnerability Details:** 
 
 The createEscrow function is used in two places in the protocol, in the executeWithdrawal and the _blockAccount functions. Both functions implement it in the following way:
 
@@ -311,7 +313,7 @@ function overrideSanction(address account) public override {
 
 Now the lender can call releaseEscrow which will pass.
 
-**Proof of concept:** 
+## **Proof of concept:** 
 
 ```solidity
 function test_nukeFromOrbit_WrongEscrowAddress() external {
@@ -332,16 +334,16 @@ function test_nukeFromOrbit_WrongEscrowAddress() external {
     }
 ```
 
-**Impact:** 
+## **Impact:** 
 
 The borrower and lender roles will be switched in the created escrow. A sanctioned lender can release their sanctioned funds without the borrower authorization or the sanction being overturned.
 
-**Tools Used:** 
+## **Tools Used:** 
 
 - Manual analysis
 - Foundry
 
-**Recommendation:** 
+## **Recommendation:** 
 
 Use the correct order for the parameters in createEscrow in the _blockAccount and executeWithdrawal functions.
 
@@ -360,9 +362,11 @@ address escrow = IWildcatSanctionsSentinel(sentinel).createEscrow(borrower, acco
   
   <br>
 
-**Severity:** High
+## **Severity:** 
 
-**Summary:** 
+High
+
+## **Summary:** 
 
 The protocol's health is monitored through a reserve ratio, representing the percentage of the market's supply required to remain within the market for redemption. Falling below this threshold results in market delinquency.
 
@@ -435,7 +439,7 @@ function closeMarket() external onlyController nonReentrant {
 
 Consequently, the increased scale factor means that the total funds in the market won't cover all lenders, and lenders exiting closer to the end may not be able to fully withdraw their funds.
 
-**Proof Of Concept:** 
+## **Proof Of Concept:** 
 
 ```solidity
 function test_closeMarket_WhileStillInPenalty() external asAccount(address(controller)) {
@@ -470,16 +474,16 @@ function test_closeMarket_WhileStillInPenalty() external asAccount(address(contr
     }
 ```
 
-**Impact:** 
+## **Impact:** 
 
 The Scale factor will continue to increase after the market was closed by the borrower, meaning lenders who withdraw closer to the end will not be able to fully withdraw from the market, resulting in a loss of funds.
 
-**Tools Used:** 
+## **Tools Used:** 
 
 - Manual analysis
 - Foundry
 
-**Recommendation:** 
+## **Recommendation:** 
 
 Reset the grace tracker to zero upon market closure to prevent the delinquency fee from persisting and causing an increase in the scale factor.
 
@@ -514,15 +518,17 @@ function closeMarket() external onlyController nonReentrant {
   
   <br>
 
-**Severity:** High
+## **Severity:** 
 
-**Summary:** 
+High
+
+## **Summary:** 
 
 Borrowers have the capability to modify a market's maximum capacity and interest APR in the Wildcat Protocol. The code implements the setMaxTotalSupply and setAnnualInterestBips functions, both equipped with an onlyController modifier to restrict access to the controller contract.
 
 This is fine for setAnnualInterestBips as its invoked in the WildcatMarketController contract however the setMaxTotalSupply function is not meaning the maximum supply cannot be adjusted. The same issue occurs with the closeMarket function in the WildcatMarket contract meaning the borrower will not be able to close the market.
 
-**Vulnerability Details:** 
+## **Vulnerability Details:** 
 
 The setMaxTotalSupply function enforces access control to permit only the controller contract to invoke it. However, the controller contract does not call this function, rendering it unusable and preventing adjustments to the maximum supply capacity.
 
@@ -564,7 +570,7 @@ function closeMarket() external onlyController nonReentrant {
         emit MarketClosed(block.timestamp);
     }
 ```
-**Proof of concept:**
+## **Proof of concept:**
 
 ```solidity
 function closeMarket() external onlyController nonReentrant {
@@ -597,16 +603,16 @@ function test_ChangeMaxCapacity() external {
     }
 ```
 
-**Impact:** 
+## **Impact:** 
 
 A borrower will not be able to Adjust Market Capacity or Close the Market.
 
-**Tools Used:** 
+## **Tools Used:** 
 
 - Manual analysis
 - Foundry
 
-**Recommendation:** 
+## **Recommendation:** 
 
 Add functions in the WildcatMarketController contract that invoke the setMaxTotalSupply and closeMarket function so a borrower is able to Adjust Market Capacity and Close the Market.
 
@@ -617,15 +623,17 @@ Add functions in the WildcatMarketController contract that invoke the setMaxTota
   
   <br>
 
-**Severity:** High
+## **Severity:** 
 
-**Summary:** 
+High
+
+## **Summary:** 
 
 The Wildcat Protocol implements the ability to deploy an escrow contract between the borrower of a market and the lender in question in the event that a lender address is sanctioned. This is done by the borrower calling the nukeFromOrbit function with the borrower's address. If the lender is indeed sanctioned, it creates an escrow contract, transfers the market balance corresponding to the lender from the market to the escrow, erases the lender's market token balance, and blocks them from any further interaction with the market itself.
 
 However, a lender can avoid being blocked and remain in the market, accruing interest even if they are sanctioned.
 
-**Vulnerability Details:** 
+## **Vulnerability Details:** 
 
 In order for a borrower to call the nukeFromOrbit function on a lender, the lender has to be sanctioned.
 
@@ -688,7 +696,7 @@ function updateAccountAuthorization(address _account, bool _isAuthorized) extern
 ```
 As you can see through this process a sanctioned user can keep transferring funds to fresh accounts to avoid being blocked and keep accruing interest.
 
-**Proof of concept:** 
+## **Proof of concept:** 
 
 ```solidity
 function test_AvoidNukeFromOrbit() external {
@@ -731,16 +739,16 @@ function test_AvoidNukeFromOrbit() external {
     }
 ```
 
-**Impact:** 
+## **Impact:** 
 
 A sanctioned user can not only avoid being blocked but can keep switching between fresh accounts and keep accruing interest in a protocol, which would defeat the whole purpose of the Sentinel feature in the Wildcat protocol, used to minimize sanctioned users' interactions with the protocol.
 
-**Tools Used:** 
+## **Tools Used:** 
 
 - Manual analysis
 - Foundry
 
-**Recommendation:** 
+## **Recommendation:** 
 
 Add stricter access control to the updateLenderAuthorization function. If _isAuthorized is true then just shift to DepositAndWithdraw, and if it's not, check that they have DepositAndWithdraw first and then drop them to WithdrawOnly.
 
@@ -753,9 +761,11 @@ Add stricter access control to the updateLenderAuthorization function. If _isAut
   
   <br>
 
-**Severity:** Medium
+## **Severity:** 
 
-**Summary:** 
+Medium
+
+## **Summary:** 
 
   The LibStoredInitCode library use the create and create2 opcodes to deploy markets or factories. Both create and create2 opcodes can fail without causing a revert, and such failures can only be detected by checking the return value, which will be 0 if the deployment fails.
 
@@ -821,15 +831,15 @@ function create2WithStoredInitCode(address initCodeStorage, bytes32 salt, uint25
 
 As a result, a failed deployment without a revert could still register a controller or market at a predetermined address, even though the contract failed to deploy.
 
-**Impact:** 
+## **Impact:** 
 
 If the return values of the create and create2 opcodes are not checked, failed deployments may go unnoticed. This oversight can have unintended consequences.
 
-**Tools Used:** 
+## **Tools Used:** 
 
 Manual analysis
 
-**Recommendation:** 
+## **Recommendation:** 
 
 Modify the code to include checks on the return value of create and create2 in the createWithStoredInitCode and create2WithStoredInitCode functions. This will ensure that a failed deployment is properly detected, preventing registration at a predetermined address.
 
@@ -840,9 +850,11 @@ Modify the code to include checks on the return value of create and create2 in t
   
   <br>
 
-**Severity:** Medium
+## **Severity:** 
 
-**Summary:** 
+Medium
+
+## **Summary:** 
 
 The WildcatMarketController contract enforces certain max/min constraints on the following variables: namePrefix, symbolPrefix, annualInterestBips, delinquencyFeeBips, withdrawalBatchDuration, reserveRatioBips, delinquencyGracePeriod. This is done using the enforceParameterConstraints function as shown below:
 
@@ -900,7 +912,7 @@ function setAnnualInterestBips(address market, uint16 annualInterestBips)
 
 Although lowering the annualInterestBips would require 90% liquidity coverage for the next 2 weeks, it would still mean lenders could potentially end up earning less interest than what they believed would be the minimum. This could cause lenders to earn less than anticipated, especially if they don't check on their account for a while, assuming they're okay with the minimum.
 
-**Proof Of Concept:** 
+## **Proof Of Concept:** 
 
 ```solidity
 function test_DeployMarket_ChangeVals() external {
@@ -917,18 +929,18 @@ function test_DeployMarket_ChangeVals() external {
     }
 ```
 
-**Impact:** 
+## **Impact:** 
 
 One of the Main Invariants listed by the protocol can be broken.
 
 "Market parameters should never be able to exit the bounds defined by the controller which deployed it."
 
-**Tools Used:** 
+## **Tools Used:** 
 
 - Manual analysis
 - Foundry
 
-**Recommendation:** 
+## **Recommendation:** 
 
 Ensure that the constraints set on annualInterestBips, are consistently enforced even after deployment to prevent borrowers from going over/under these constraints. This can be achieved by adding the necessary parameter checks in the setAnnualInterestBips function.
 
@@ -939,9 +951,11 @@ Ensure that the constraints set on annualInterestBips, are consistently enforced
   
   <br>
 
-**Severity:** Medium
+## **Severity:** 
 
-**Summary:** 
+Medium
+
+## **Summary:** 
 
 The Wildcat Protocol allows the deployment of an escrow contract between the borrower of a market and a lender in the event of a sanctioned lender address. The borrower initiates this process by calling the nukeFromOrbit function with their address. If the lender is indeed sanctioned, this function creates an escrow contract, transfers the vault balance corresponding to the lender from the market to the escrow, erases the lender's market token balance, and restricts them from further interaction with the market.
 
@@ -990,15 +1004,15 @@ function releaseEscrow() public override {
 
 Since this involves the market's token, a sanctioned lender can then call queueWithdrawal and executeWithdrawal to withdraw their funds. During this process, the latest scale factor is used to convert the balance, meaning that a sanctioned lender would have accrued all interest until they withdraw, even during the period of their sanction.
 
-**Impact:** 
+## **Impact:** 
 
 A sanctioned lender continues to accrue interest at the same rate as other lenders, contrary to the Wildcat documentation.
 
-**Tools Used:** 
+## **Tools Used:** 
 
 Manual analysis
 
-**Recommendation:** 
+## **Recommendation:** 
 
 Modify the code to enforce the stopping of interest upon the creation and transfer of funds to the escrow, aligning it with the protocol's documentation.
 

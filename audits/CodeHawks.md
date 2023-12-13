@@ -214,8 +214,6 @@ if (tokenContract.balanceOf(address(this)) < price) revert Escrow__MustDeployWit
 
 </details>
 
----
-
 <details>
   <summary><a id="m02---xxx"></a>[M02] - Lack of input validation in newEscrow function</summary>
   

@@ -151,6 +151,97 @@ Lets see what the batch looks like now
 
 - The batch.normalizedAmountPaid is 5, meaning the Lenders' withdrawal amount surpassed the batch's current limit.
 
+## **Proof Of Concept:** 
+
+For the following test, make sure you use the following parameters in ExpectedStateTracker.
+
+```solidity
+MarketParameters internal parameters = MarketParameters({
+        asset: address(0),
+        namePrefix: "Wildcat ",
+        symbolPrefix: "WC",
+        borrower: borrower,
+        controller: address(0),
+        feeRecipient: address(0),
+        sentinel: address(sanctionsSentinel),
+        maxTotalSupply: uint128(DefaultMaximumSupply),
+        protocolFeeBips: 0,
+        annualInterestBips: 0,
+        delinquencyFeeBips: DefaultDelinquencyFee,
+        withdrawalBatchDuration: 0,
+        reserveRatioBips: DefaultReserveRatio,
+        delinquencyGracePeriod: DefaultGracePeriod
+    });
+```
+
+```solidity
+function test_ZeroWithdrawalDuration() external asAccount(address(controller)) {
+        assertEq(market.withdrawalBatchDuration(), 0);
+        // alice deposit
+        _deposit(alice, 2e18);
+        // bob deposit
+        _deposit(bob, 1e18);
+        // borrow 33% of deposits
+        _borrow(1e18);
+        // alice withdraw request
+        startPrank(alice);
+        market.queueWithdrawal(1e18);
+        stopPrank();
+        // fast forward 1 days
+        fastForward(1 days);
+        // alice withdraw request
+        startPrank(alice);
+        market.queueWithdrawal(1e18);
+        stopPrank();
+        // lets look at the withdrawal batch
+        assertEq(market.getWithdrawalBatch(uint32(block.timestamp)).normalizedAmountPaid, 1e18);
+        assertEq(market.getWithdrawalBatch(uint32(block.timestamp)).scaledTotalAmount, 1e18);
+        assertEq(market.getWithdrawalBatch(uint32(block.timestamp)).scaledAmountBurned, 1e18);
+        // check amount alice has withdrawn so far (should be zero)
+        assertEq(
+            market.getAccountWithdrawalStatus(address(alice), uint32(block.timestamp)).normalizedAmountWithdrawn, 0
+        );
+        // alice withdraw
+        startPrank(alice);
+        market.executeWithdrawal(address(alice), uint32(block.timestamp));
+        stopPrank();
+        // check amount alice has withdrawn so far (should be 1e18)
+        assertEq(
+            market.getAccountWithdrawalStatus(address(alice), uint32(block.timestamp)).normalizedAmountWithdrawn, 1e18
+        );
+        // bob withdraw request in same batch
+        startPrank(bob);
+        market.queueWithdrawal(1e18);
+        stopPrank();
+        // lets look at the withdrawal batch now
+        assertEq(market.getWithdrawalBatch(uint32(block.timestamp)).normalizedAmountPaid, 1e18);
+        assertEq(market.getWithdrawalBatch(uint32(block.timestamp)).scaledTotalAmount, 2e18);
+        assertEq(market.getWithdrawalBatch(uint32(block.timestamp)).scaledAmountBurned, 1e18);
+        // check amount bob has withdrawn so far (should be zero)
+        assertEq(market.getAccountWithdrawalStatus(address(bob), uint32(block.timestamp)).normalizedAmountWithdrawn, 0);
+        // bob withdraw
+        startPrank(bob);
+        market.executeWithdrawal(address(bob), uint32(block.timestamp));
+        stopPrank();
+        // check amount bob has withdrawn so far (should be 5e17)
+        assertEq(
+            market.getAccountWithdrawalStatus(address(bob), uint32(block.timestamp)).normalizedAmountWithdrawn, 5e17
+        );
+        // lets look at the withdrawal batch now
+        assertEq(market.getWithdrawalBatch(uint32(block.timestamp)).normalizedAmountPaid, 1e18);
+        assertEq(market.getWithdrawalBatch(uint32(block.timestamp)).scaledTotalAmount, 2e18);
+        assertEq(market.getWithdrawalBatch(uint32(block.timestamp)).scaledAmountBurned, 1e18);
+        // whats happened is alice and bob have withdrawn 1e18 and 5e17 respectively
+        // but the batch is 1e18
+        uint128 normalizedAmountPaid = market.getWithdrawalBatch(uint32(block.timestamp)).normalizedAmountPaid;
+        uint128 aliceWithdrawn =
+            market.getAccountWithdrawalStatus(address(alice), uint32(block.timestamp)).normalizedAmountWithdrawn;
+        uint128 bobWithdrawn =
+            market.getAccountWithdrawalStatus(address(bob), uint32(block.timestamp)).normalizedAmountWithdrawn;
+        assertGt(aliceWithdrawn + bobWithdrawn, normalizedAmountPaid);
+    }
+```
+
 ## **Impact:** 
 
 This will break the following invariant in the protocol:

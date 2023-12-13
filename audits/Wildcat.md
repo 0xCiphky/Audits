@@ -265,21 +265,156 @@ address escrow = IWildcatSanctionsSentinel(sentinel).createEscrow(borrower, acco
 </details>
 
 <details>
-  <summary><a id="h03---xxx"></a>[H03] - XXX</summary>
+  <summary><a id="h03---xxx"></a>[H03] - Borrower closing market while secondsRemainingWithPenalty isn’t zero will lead to lenders not able to fully withdraw</summary>
   
   <br>
 
-  **Severity:** High
+**Severity:** High
 
-  **Summary:** 
+**Summary:** 
 
-  **Vulnerability Details:** 
+The protocol's health is monitored through a reserve ratio, representing the percentage of the market's supply required to remain within the market for redemption. Falling below this threshold results in market delinquency.
 
-  **Impact:** 
+When a market becomes delinquent, a penalty rate is applied to the base rate as long as the grace tracker exceeds the grace period. The grace period is dynamic, counting down to zero when delinquency is resolved, and only then does the penalty APR cease.
 
-  **Tools Used:** 
+```solidity
+function updateTimeDelinquentAndGetPenaltyTime(
+    MarketState memory state,
+    uint256 delinquencyGracePeriod,
+    uint256 timeDelta
+  ) internal pure returns (uint256 /* timeWithPenalty */) {
+    // Seconds in delinquency at last update
+    uint256 previousTimeDelinquent = state.timeDelinquent;
 
-  **Recommendation:** 
+    if (state.isDelinquent) {
+      // Since the borrower is still delinquent, increase the total
+      // time in delinquency by the time elapsed.
+      state.timeDelinquent = (previousTimeDelinquent + timeDelta).toUint32();
+
+      // Calculate the number of seconds the borrower had remaining
+      // in the grace period.
+      uint256 secondsRemainingWithoutPenalty = delinquencyGracePeriod.satSub(
+        previousTimeDelinquent
+      );
+
+      // Penalties apply for the number of seconds the market spent in
+      // delinquency outside of the grace period since the last update.
+      return timeDelta.satSub(secondsRemainingWithoutPenalty);
+    }
+
+    // Reduce the total time in delinquency by the time elapsed, stopping
+    // when it reaches zero.
+    state.timeDelinquent = previousTimeDelinquent.satSub(timeDelta).toUint32();
+
+    // Calculate the number of seconds the old timeDelinquent had remaining
+    // outside the grace period, or zero if it was already in the grace period.
+    uint256 secondsRemainingWithPenalty = previousTimeDelinquent.satSub(delinquencyGracePeriod);
+
+    // Only apply penalties for the remaining time outside of the grace period.
+    return MathUtils.min(secondsRemainingWithPenalty, timeDelta);
+  }
+```
+
+A borrower can close a market in the event that they have finished utilizing the funds. When a vault is closed, sufficient assets must be repaid to increase the reserve ratio to 100%, after which interest ceases to accrue, and no further parameter adjustment or borrowing is possible.
+
+However, an issue arises when a borrower closes a market while the secondsRemainingWithPenalty is still active. This results in the delinquency fee persisting, leading to an increase in the scale factor, which should remain constant after market closure, as the borrower has repaid all funds at that rate.
+
+```solidity
+function closeMarket() external onlyController nonReentrant {
+        MarketState memory state = _getUpdatedState();
+        state.annualInterestBips = 0;
+        state.isClosed = true;
+        state.reserveRatioBips = 0;
+        if (_withdrawalData.unpaidBatches.length() > 0) {
+            revert CloseMarketWithUnpaidWithdrawals();
+        }
+        uint256 currentlyHeld = totalAssets();
+        uint256 totalDebts = state.totalDebts();
+        if (currentlyHeld < totalDebts) {
+            // Transfer remaining debts from borrower
+            asset.safeTransferFrom(borrower, address(this), totalDebts - currentlyHeld);
+        } else if (currentlyHeld > totalDebts) {
+            // Transfer excess assets to borrower
+            asset.safeTransfer(borrower, currentlyHeld - totalDebts);
+        }
+        _writeState(state);
+        emit MarketClosed(block.timestamp);
+    }
+```
+
+Consequently, the increased scale factor means that the total funds in the market won't cover all lenders, and lenders exiting closer to the end may not be able to fully withdraw their funds.
+
+**Proof Of Concept:** 
+
+```solidity
+function test_closeMarket_WhileStillInPenalty() external asAccount(address(controller)) {
+        asset.mint(address(borrower), type(uint128).max);
+        assertEq(market.currentState().isDelinquent, false);
+        // alice deposit
+        _deposit(alice, 1e18);
+        // borrow 80% of deposits
+        _borrow(8e17);
+        // request withdrawal to put borrower in penalty
+        _requestWithdrawal(alice, 1e18);
+        // borrower now delinquent
+        assertEq(market.currentState().isDelinquent, true);
+        // fast forward grace period plus 5 days
+        fastForward(parameters.delinquencyGracePeriod + 5 days);
+        // borrower transfer  deposits
+        startPrank(borrower);
+        asset.transfer(address(market), 1e18);
+        stopPrank();
+        market.updateState();
+        // borrower close market
+        startPrank(borrower);
+        asset.approve(address(market), 20e17);
+        stopPrank();
+        market.closeMarket();
+        // check final scale factor
+        uint112 FinalScaleFactor = market.currentState().scaleFactor;
+        assertEq(market.currentState().isClosed, true);
+        fastForward(10 days);
+        // check scale factor 10 days after close market
+        assertGt(market.currentState().scaleFactor, FinalScaleFactor);
+    }
+```
+
+**Impact:** 
+
+The Scale factor will continue to increase after the market was closed by the borrower, meaning lenders who withdraw closer to the end will not be able to fully withdraw from the market, resulting in a loss of funds.
+
+**Tools Used:** 
+
+- Manual analysis
+- Foundry
+
+**Recommendation:** 
+
+Reset the grace tracker to zero upon market closure to prevent the delinquency fee from persisting and causing an increase in the scale factor.
+
+```solidity
+function closeMarket() external onlyController nonReentrant {
+        MarketState memory state = _getUpdatedState();
+        state.annualInterestBips = 0;
+        state.isClosed = true;
+        state.reserveRatioBips = 0;
+        state.timeDelinquent = 0; // add here
+        if (_withdrawalData.unpaidBatches.length() > 0) {
+            revert CloseMarketWithUnpaidWithdrawals();
+        }
+        uint256 currentlyHeld = totalAssets();
+        uint256 totalDebts = state.totalDebts();
+        if (currentlyHeld < totalDebts) {
+            // Transfer remaining debts from borrower
+            asset.safeTransferFrom(borrower, address(this), totalDebts - currentlyHeld);
+        } else if (currentlyHeld > totalDebts) {
+            // Transfer excess assets to borrower
+            asset.safeTransfer(borrower, currentlyHeld - totalDebts);
+        }
+        _writeState(state);
+        emit MarketClosed(block.timestamp);
+    }
+```
 
 </details>
 

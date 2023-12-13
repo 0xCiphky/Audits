@@ -90,7 +90,7 @@ To mitigate the risk, the protocol should avoid relying on the success status of
 function processDepositCancellation(GMXTypes.Store storage self) external {
         GMXChecks.beforeProcessDepositCancellationChecks(self);
 
-		...
+	...
 
         // Return user's deposited asset
         // If native token is being withdrawn, we convert wrapped to native
@@ -513,7 +513,7 @@ constructor(string memory name, string memory symbol, GMXTypes.Store memory stor
         Ownable(msg.sender)
     {
 			
-				_store.gmxOracle = IGMXOracle(store_.gmxOracle);
+	_store.gmxOracle = IGMXOracle(store_.gmxOracle);
 
         _store.exchangeRouter = IExchangeRouter(store_.exchangeRouter);
         _store.router = store_.router;
@@ -587,7 +587,7 @@ Ensure the fees are accurately accounted for at their respective rates by updati
 
 ```solidity
 function updateFeePerSecond(uint256 feePerSecond) external onlyOwner {
-		self.vault.mintFee();
+	self.vault.mintFee();
         _store.feePerSecond = feePerSecond;
         emit FeePerSecondUpdated(feePerSecond);
     }

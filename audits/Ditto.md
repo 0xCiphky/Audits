@@ -16,7 +16,7 @@ The system mints pegged assets (stablecoins) using an orderbook, using over-coll
 |-----|----------------------------------|------------|
 | [H01](#h01---xxx) | [Users can avoid liquidation while being under the primary liquidation ratio if on the last short record](https://www.codehawks.com/report/clm871gl00001mp081mzjdlwc#H-03)                             | High       |
 | [H02](#h02---xxx) | [Flagger Ids are reused too early, potentially blocking flaggers from liquidating in there allocated time](https://www.codehawks.com/submissions/clm871gl00001mp081mzjdlwc/177)                              | High       |
-| [M01](#m01---xxx) | Combining shorts can incorrectly reset the shorts flag                              | Medium     |
+| [M01](#m01---xxx) | [Combining shorts can incorrectly reset the shorts flag](https://www.codehawks.com/report/clm871gl00001mp081mzjdlwc#M-07)                              | Medium     |
 | [L01](#l01---xxx) | Last short does not reset liquidation flag after user gets fully liquidated, meaning healthy position will still be flagged if another order gets filled                              | Low/Info   |
 | [L02](#l02---xxx) | Last short does not reset liquidation flag after user exits position fully, meaning healthy position will still be flagged if another order gets filled                              | Low/Info   |
 | [L03](#l03---xxx) | Partial filled short does not reset liquidation flag after user gets fully liquidated, meaning healthy position will still be flagged if the rest of the order gets filled                              | Low/Info   |
@@ -393,15 +393,23 @@ if (timeDiff > LibAsset.secondLiquidationTime(cusd)) {
   
   <br>
 
-**Severity:** Medium
+## **Severity:** 
 
-**Summary:** 
+Medium
+
+## **Relevant GitHub Links**
+
+https://github.com/Cyfrin/2023-09-ditto/blob/a93b4276420a092913f43169a353a6198d3c21b9/contracts/facets/ShortRecordFacet.sol#L117
+
+https://github.com/Cyfrin/2023-09-ditto/blob/a93b4276420a092913f43169a353a6198d3c21b9/contracts/libraries/LibShortRecord.sol#L298
+
+## **Summary:** 
 
   The protocol allows users to combine multiple short positions into one as long as the combined short stays above the primary collateral ratio. The function is also able to reset an active flag from any of the combined shorts if the final ratio is above the primaryLiquidationCR.
 
 The issue is that the combineShorts function does not call updateErcDebt, which is called in every other function that is able to reset a shorts flag. This means that if the debt is outdated the final combined short could incorrectly reset the flag putting the position on a healthy ratio when it really isn’t. This would also mean that it will have to be reflagged and go through the timer again before it can be liquidated.
 
-**Vulnerability Details:** 
+## **Vulnerability Details:** 
 
   The combine shorts function merges all short records into the short at position id[0]. Focusing on the debt aspect it adds up the total debt and calculates the ercDebtSocialized of all positions except for the first.
 
@@ -440,16 +448,16 @@ Finally we check if the position had an active flag and if it did, we check if t
 
 As you can see the updateErcDebt function is not called anywhere in the function meaning the flag could be reset with outdated values.
 
-**Impact:** 
+## **Impact:** 
 
   A short could have its flag incorrectly reset and reset the timer. This is not good for the protocol as it will have a unhealthy short for a longer time.
 
-**Tools Used:** 
+## **Tools Used:** 
 
   - Manual analysis
   - Foundry
 
-**Recommendation:** 
+## **Recommendation:** 
 
   Call updateErcDebt on the short once it is combined in the combineShorts function to ensure the collateral ratio is calculated with the most up to date values.
 
@@ -492,16 +500,16 @@ As you can see the updateErcDebt function is not called anywhere in the function
   
   <br>
 
-**Severity:** Low
+## **Severity:** Low
 
-**Summary:** 
+## **Summary:** 
 
   - The protocol permits users to maintain up to 254 concurrent short records. When this limit is reached, any additional orders are appended to the final position, rather than creating a new one.
 - A short record is flagged if it falls below the primary liquidation ratio set by the protocol, signalling to the user that their position is nearing an unhealthy state. The user can resolve this by modifying the position to improve its health or by paying off the short and exiting the position.
 - If a user is unable to get their their position to a healthy state by a certain time they can be liquidated.
 - A vulnerability exists where, under specific circumstances, a user’s healthy position is flagged and can be instantly liquidated without warning.
 
-**Vulnerability Details:**
+## **Vulnerability Details:**
 
   - Consider the following scenario
     1. User A creates a short order, that gets matched and fills in the last short (ID 254).
@@ -582,7 +590,7 @@ As you can see the updateErcDebt function is not called anywhere in the function
 ```
 </details>
 
-**Impact:** 
+## **Impact:** 
 
   - A healthy short is incorrectly flagged.
 - If the new short falls below the primary liquidation ratio:
@@ -592,12 +600,12 @@ As you can see the updateErcDebt function is not called anywhere in the function
 - The protocol gives users a grace period to reestablish their positions when they fall below the primary liquidation ratio, however in the following situation a user can be liquidated without warning (being flagged).
 - A user is also unable to use certain protocol functionality (e.g. transfer his short).
 
-**Tools Used:**
+## **Tools Used:**
 
   - Manual Analysis
   - Foundry
 
-**Recommendation:**
+## **Recommendation:**
 
   - The liquidation process must reset the flag in full liquidations to ensure that users don’t start off with healthy positions flagged when the another order gets matched to the last short.
 
@@ -629,15 +637,15 @@ if (m.short.ercDebt == m.ercDebtMatched) {
   
   <br>
 
-**Severity:** Low
+## **Severity:** Low
 
-**Summary:** 
+## **Summary:** 
 
   - The protocol permits users to maintain up to 254 concurrent short records. When this limit is reached, any additional orders are appended to the final position, rather than creating a new one.
 - A short record is flagged if it falls below the primary liquidation ratio set by the protocol, signalling to the user that their position is nearing an unhealthy state. The user can resolve this by modifying the position to improve its health or by paying off the short and exiting the position.
 - A vulnerability exists where, under specific circumstances, a user’s healthy position is flagged and can be instantly liquidated without warning.
 
-**Vulnerability Details:**
+## **Vulnerability Details:**
 
   - Consider the following scenario
     1. User A creates a short order, that gets matched and fills in the last short (ID 254).
@@ -715,7 +723,7 @@ if (m.short.ercDebt == m.ercDebtMatched) {
 ```
 </details>
 
-**Impact:** 
+## **Impact:** 
 
 - A healthy short is incorrectly flagged.
 - If the new short falls below the primary liquidation ratio:
@@ -725,11 +733,11 @@ if (m.short.ercDebt == m.ercDebtMatched) {
 - The protocol gives users a grace period to reestablish their positions when they fall below the primary liquidation ratio, however in the following situation a user can be liquidated without warning (being flagged).
 - A user is also unable to use certain protocol functionality (e.g. transfer his short).
 
-**Tools Used:** 
+## **Tools Used:** 
 - Manual Analysis
 - Foundry
 
-**Recommendation:** 
+## **Recommendation:** 
 
 The flag needs to be checked in all three exit functions: **`exitShortWallet`**, **`exitShortErcEscrowed`**, and **`exitShort`**, when a short record is fully paid.
 
@@ -751,16 +759,18 @@ Ensure the flag is reset when a user fully pays off their short, so if it was th
   
   <br>
 
-**Severity:** Low
+## **Severity:** 
 
-**Summary:** 
+Low
+
+## **Summary:** 
 
   - The protocol allows a short order to be partially matched, generating a short record for the matched amount. The unmatched portion of the order can be subsequently filled and added to the short record.
 - A short record is flagged if it falls below the primary liquidation ratio set by the protocol, signalling to the user that their position is nearing an unhealthy state. The user can resolve this by modifying the position to improve its health or by paying off the short and exiting the position.
 - If a user is unable to get their their position to a healthy state by a certain time they can be liquidated.
 - A vulnerability exists where, under specific circumstances, a user’s healthy position is flagged and can be instantly liquidated without warning.
 
-**Vulnerability Details:**
+## **Vulnerability Details:**
 
   - Consider the following scenario
     1. User A creates a short order, 50% of which is filled with a bid.
@@ -831,7 +841,7 @@ Ensure the flag is reset when a user fully pays off their short, so if it was th
 ```
 </details>
 
-**Impact:** 
+## **Impact:** 
 
   - A healthy short is incorrectly flagged.
 - If the new short falls below the primary liquidation ratio:
@@ -840,12 +850,12 @@ Ensure the flag is reset when a user fully pays off their short, so if it was th
   - Keep in mind the shorts updatedAt will be updated when the short gets filled so this will push the liquidation times up by the time diff (fillShort - flagged).
 - A user is also unable to use certain protocol functionality (e.g. transfer the short).
 
-**Tools Used:** 
+## **Tools Used:** 
 
 - Manual Analysis
 - Foundry
 
-**Recommendation:** 
+## **Recommendation:** 
 
 - The liquidation process must reset the flag in full liquidations to ensure that users don’t start off with healthy positions flagged when the unmatched portion gets filled.
 
@@ -877,15 +887,17 @@ if (m.short.ercDebt == m.ercDebtMatched) {
   
   <br>
 
-**Severity:** Low
+## **Severity:** 
 
-**Summary:** 
+Low
+
+## **Summary:** 
 
   - The protocol allows a short order to be partially matched, generating a short record for the matched amount. The unmatched portion of the order can be subsequently filled and added to the short record.
 - A short record is flagged if it falls below the primary liquidation ratio set by the protocol, signalling to the user that their position is nearing an unhealthy state. The user can resolve this by modifying the position to improve its health or by paying off the short and exiting the position.
 - A vulnerability exists where, under specific circumstances, a user’s healthy position is flagged.
 
-**Vulnerability Details:**
+## **Vulnerability Details:**
 
   - Consider the following scenario
     1. User A creates a short order, 50% of which is filled with a bid.
@@ -962,7 +974,7 @@ if (m.short.ercDebt == m.ercDebtMatched) {
 ```
 </details>
 
-**Impact:** 
+## **Impact:** 
 
 - A healthy short is incorrectly flagged.
 - If the new short falls below the primary liquidation ratio:
@@ -971,12 +983,12 @@ if (m.short.ercDebt == m.ercDebtMatched) {
   - Keep in mind the shorts updatedAt will be updated when the short gets filled so this will push the liquidation times up by the time diff (fillShort - flagged).
 - A user is also unable to use certain protocol functionality (e.g. transfer the short) when a short is flagged.
 
-**Tools Used:** 
+## **Tools Used:** 
 
 - Manual Analysis
 - Foundry
 
-**Recommendation:** 
+## **Recommendation:** 
 
 - The flag needs to be reset in all three exit functions: **`exitShortWallet`**, **`exitShortErcEscrowed`**, and **`exitShort`**, when a short record is fully paid.
 - Ensure the flag is reset when a user fully pays off their short, so if it was a partial short a user will not start of with a healthy position flagged when the rest gets matched.
@@ -996,13 +1008,15 @@ if (m.short.ercDebt == m.ercDebtMatched) {
   
   <br>
 
-  **Severity:** Low
+## **Severity:**
 
-  **Summary:** 
+Low
+
+## **Summary:** 
 
   The protocol accommodates deposits of staked ETH derivatives, such as rETH or stETH, alongside ETH, subsequently granting users a wrapped token, zETH, denoting claims to ETH within the protocol. Although the protocol allows for the minting of zETH through deposits of ETH or accepted LST, it doesn't enforce the limitations established by the LST pools. This oversight could lead to inadvertent transaction reverts, causing potential disruption in user interaction with the protocol.
 
-**Vulnerability Details:** 
+## **Vulnerability Details:** 
 
   The protocol does not enforce constraints set by the stETH and rETH pools, leading to potential disruptions. Specifically:
 
@@ -1024,15 +1038,15 @@ if (m.short.ercDebt == m.ercDebtMatched) {
 - **Deposit Delay (currently not active):**
     - rETH tokens from Rocket Pool incorporate a deposit delay, hindering the immediate transfer or burning of tokens by recent depositors.
 
-**Impact:** 
+## **Impact:** 
 
 The lack of checks to these limitations can lead to transaction reverts if any of the requirements are not met, potentially affecting the overall user experience of the protocol.
 
-**Tools Used:** 
+## **Tools Used:** 
 
 - manual analysis
 
-**Recommendation:** 
+## **Recommendation:** 
 
 When interacting with the respective bridges, the protocol should ensure that users comply with the allowed ranges and that the bridges are accepting deposits.
 
@@ -1043,13 +1057,15 @@ When interacting with the respective bridges, the protocol should ensure that us
   
   <br>
 
-**Severity:** Low
+## **Severity:** 
 
-**Summary:** 
+Low
+
+## **Summary:** 
 
   The protocol allows the merging of multiple short positions into one, provided the combined short maintains a healthy ratio. A known issue, "M-06 duplicate inputs," states that the use of of duplicate shorts is averted as shorts are deleted once combined, however it misses a sequence that can potentially bypass this preventive measure, leading to unintended or malicious  cancellations of active orders and disruptions in protocol accounting.
 
-**Vulnerability Details:** 
+## **Vulnerability Details:** 
 
   The vulnerability resides in the **`combineShorts`** function, which initiates by validating the first short:
 
@@ -1117,19 +1133,19 @@ The loophole emerges when the first short is repeated later down the array. This
 ```
 </details>
 
-**Impact:** 
+## **Impact:** 
 
 This has two significant impacts on the protocol:
 - If executed accidentally a user will lose all combined shorts.
 - If executed maliciously, let's say the short is worth close to nothing, a user could reset the flag as this double counts the repeated short. The short is then cancelled and can't be liquidated.
 - Both scenarios will also disrupt protocol accounting as the values are not correctly accounted for.
 
-**Tools Used:** 
+## **Tools Used:** 
 
 - Manual analysis
 - Foundry
 
-**Recommendation:** 
+## **Recommendation:** 
 
 To fix this, the validation of the first short should be conducted post the loop execution or integrated within another validation checkpoint post-loop.
 
@@ -1188,9 +1204,11 @@ function combineShorts(address asset, uint8[] memory ids)
   
   <br>
 
-**Severity:** Low
+## **Severity:** 
 
-**Summary:** 
+Low
+
+## **Summary:** 
 
 The protocol allows users to flag positions that fall below the primary collateral ratio. Once flagged, if the position stays below this ratio, the flagger obtains the right to liquidate the position after a specified duration.
 
@@ -1200,15 +1218,15 @@ According to the protocol's documentation:
 
 However, the system does not have functionality to allow the reset of flags even when the price moves favourably, and the user’s position reaches the target maintenance margin collateral ratio (CR). This discrepancy implies that, during the flag duration, users could experience instant liquidation by the flagger or any one else without warning, even if their positions had reached a healthy state after being flagged.
 
-**Vulnerability Details/Impact:** 
+## **Vulnerability Details/Impact:** 
 
 Users, even with healthy positions, may be compelled to add additional collateral, merge shorts, or invoke the exit function to reset the flag. This limitation implies that the flag cannot be reset unless users modify their positions, a condition that contradicts the stated documentation.
 
-**Tools Used:** 
+## **Tools Used:** 
 
 Manual analysis
 
-**Recommendation:** 
+## **Recommendation:** 
 
 Revise the flagShort function or introduce a new mechanism allowing users to manually reset the flag on their positions once they have regained a healthy state.
 
@@ -1219,9 +1237,11 @@ Revise the flagShort function or introduce a new mechanism allowing users to man
   
   <br>
 
-**Severity:** Low
+## **Severity:** 
 
-**Summary:** 
+Low
+
+## **Summary:** 
 
 The protocol has a maximum collateral ratio (CR) set for shorts, which is enforced in two different places within the codebase: **`createLimitShort`** and **`increaseCollateral`** functions. However, there is a discrepancy in the implementation. The code checks whether the CR is greater than or equal to (**`≥`**) the maximum allowed value, thus preventing users from ever reaching the exact maximum CR value.
 
@@ -1255,19 +1275,19 @@ function increaseCollateral(address asset, uint8 id, uint88 amount)
     }
 ```
 
-**Vulnerability Details:** 
+## **Vulnerability Details:** 
 
 The use of the **`≥`** operator instead of the **`>`** operator when comparing the CR with the **`Constants.CRATIO_MAX`** prevents users from setting a CR that is exactly equal to the maximum allowable CR, limiting them to values strictly less than the maximum.
 
-**Impact:** 
+## **Impact:** 
 
 The impact of this issue is relatively low, as it primarily affects the flexibility users have in setting the CR for their shorts.
 
-**Tools Used:** 
+## **Tools Used:** 
 
 Manual Analysis
 
-**Recommendation:** 
+## **Recommendation:** 
 
 Update the condition to use the **`>`** operator instead of **`≥`**, allowing users to set a CR exactly equal to **`Constants.CRATIO_MAX`**.
 
@@ -1278,9 +1298,11 @@ Update the condition to use the **`>`** operator instead of **`≥`**, allowing 
   
   <br>
 
-**Severity:** Low
+## **Severity:** 
 
-**Summary:** 
+Low
+
+## **Summary:** 
 
   The **`liquidateSecondary`** function in the protocol is designed to emit events detailing the specifics of liquidation, which can be crucial for other protocols or front-end integrations that track secondary liquidations within the protocol. One of the values emitted is **`batches`**, which indicates which positions got liquidated. However the function emits the **`batches`** array as it initially receives it, even though it may skip positions that are not eligible for liquidation during its execution. This implies that the emitted event could represent incorrect data, indicating positions as liquidated even if they were not, due to their ineligibility.
 
@@ -1297,15 +1319,15 @@ function liquidateSecondary(
     }
 ```
 
-**Vulnerability Details/Impact:** 
+## **Vulnerability Details/Impact:** 
 
 This inconsistency in the emitted event data can lead to incorrect data, indicating positions as liquidated even if they were not.
 
-**Tools Used:** 
+## **Tools Used:** 
 
 Manual Analysis
 
-**Recommendation:** 
+## **Recommendation:** 
 
 Modify the **`batches`** array before emitting it in the event, ensuring it accurately reflects the positions that were actually liquidated.
 

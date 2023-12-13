@@ -13,9 +13,9 @@
 ## Audit Reports
 
 ### Code4rena
--  [**Dopex - Decentralized Options Exchange**](https://github.com/areezladhani/Audits/blob/main/audits/Dopex.md)
--  [**veRWA - Voting-Escrow**](https://github.com/areezladhani/Audits/blob/main/audits/veRWA.md)
 -  [**The Wildcat Protocol - fixed-rate, undercollateralised credit facilities**](https://github.com/0xCiphky/Audits/blob/main/audits/Wildcat.md)
+-  [**veRWA - Voting-Escrow**](https://github.com/areezladhani/Audits/blob/main/audits/veRWA.md)
+-  [**Dopex - Decentralized Options Exchange**](https://github.com/areezladhani/Audits/blob/main/audits/Dopex.md)
 -  [**Panoptic - options trading**](https://github.com/0xCiphky/Audits/blob/main/audits/Panoptic.md)
 
 ### CodeHawks

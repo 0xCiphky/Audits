@@ -745,21 +745,101 @@ Modify the code to include checks on the return value of create and create2 in t
 </details>
 
 <details>
-  <summary><a id="m02---xxx"></a>[M02] - XXX</summary>
+  <summary><a id="m02---xxx"></a>[M02] - max/min constraints are not enforced on annualInterestBips after deployment</summary>
   
   <br>
 
-  **Severity:** Medium
+**Severity:** Medium
 
-  **Summary:** 
+**Summary:** 
 
-  **Vulnerability Details:** 
+The WildcatMarketController contract enforces certain max/min constraints on the following variables: namePrefix, symbolPrefix, annualInterestBips, delinquencyFeeBips, withdrawalBatchDuration, reserveRatioBips, delinquencyGracePeriod. This is done using the enforceParameterConstraints function as shown below:
 
-  **Impact:** 
+```solidity
+function enforceParameterConstraints(
+        string memory namePrefix,
+        string memory symbolPrefix,
+        uint16 annualInterestBips,
+        uint16 delinquencyFeeBips,
+        uint32 withdrawalBatchDuration,
+        uint16 reserveRatioBips,
+        uint32 delinquencyGracePeriod
+    ) internal view virtual {
+        
+        ...
 
-  **Tools Used:** 
+        assertValueInRange(
+            annualInterestBips,
+            MinimumAnnualInterestBips,
+            MaximumAnnualInterestBips,
+            AnnualInterestBipsOutOfBounds.selector
+        );
 
-  **Recommendation:** 
+        ...
+    }
+```
+
+However, the annualInterestBip can still be changed using another function setAnnualInterestBips, which does not enforce the same constraints as above. This means a borrower could go over/under these constraints.
+
+```solidity
+function setAnnualInterestBips(address market, uint16 annualInterestBips)
+        external
+        virtual
+        onlyBorrower
+        onlyControlledMarket(market)
+    {
+        // If borrower is reducing the interest rate, increase the reserve
+        // ratio for the next two weeks.
+        if (annualInterestBips < WildcatMarket(market).annualInterestBips()) {
+            TemporaryReserveRatio storage tmp = temporaryExcessReserveRatio[market];
+
+            if (tmp.expiry == 0) {
+                tmp.reserveRatioBips = uint128(WildcatMarket(market).reserveRatioBips());
+
+                // Require 90% liquidity coverage for the next 2 weeks
+                WildcatMarket(market).setReserveRatioBips(9000);
+            }
+
+            tmp.expiry = uint128(block.timestamp + 2 weeks);
+        }
+
+        WildcatMarket(market).setAnnualInterestBips(annualInterestBips);
+    }
+```
+
+Although lowering the annualInterestBips would require 90% liquidity coverage for the next 2 weeks, it would still mean lenders could potentially end up earning less interest than what they believed would be the minimum. This could cause lenders to earn less than anticipated, especially if they don't check on their account for a while, assuming they're okay with the minimum.
+
+**Proof Of Concept:** 
+
+```solidity
+function test_DeployMarket_ChangeVals() external {
+        // check min interest rate 1%
+        assertEq(controllerFactory.getParameterConstraints().minimumAnnualInterestBips, 1000);
+        // check interest rate 10%
+        assertEq(market.currentState().annualInterestBips, 1000);
+        // change interest rate 0%
+        startPrank(borrower);
+        controller.setAnnualInterestBips(address(market), 0);
+        stopPrank();
+        // check interest rate 0%
+        assertEq(market.currentState().annualInterestBips, 0);
+    }
+```
+
+**Impact:** 
+
+One of the Main Invariants listed by the protocol can be broken.
+
+"Market parameters should never be able to exit the bounds defined by the controller which deployed it."
+
+**Tools Used:** 
+
+- Manual analysis
+- Foundry
+
+**Recommendation:** 
+
+Ensure that the constraints set on annualInterestBips, are consistently enforced even after deployment to prevent borrowers from going over/under these constraints. This can be achieved by adding the necessary parameter checks in the setAnnualInterestBips function.
 
 </details>
 

@@ -19,6 +19,7 @@
 -  [**Panoptic - options trading**](https://github.com/0xCiphky/Audits/blob/main/audits/Panoptic.md)
 
 ### CodeHawks
+-  [**The Standard - The Standard**](https://github.com/0xCiphky/Audits/blob/main/audits/Ditto.md)
 -  [**Ditto - DittoETH**](https://github.com/0xCiphky/Audits/blob/main/audits/Ditto.md)
 -  [**Steadefi - next-gen DeFi protocol**](https://github.com/0xCiphky/Audits/blob/main/audits/steaddefii.md)
 -  [**Beedle - Oracle Free Perpetual Lending**](https://github.com/areezladhani/Audits/blob/main/audits/Beedle.md)

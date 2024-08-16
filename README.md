@@ -7,7 +7,7 @@
 - [CodeHawks](https://www.codehawks.com/profile/clkrx20ym0000ju088s337njb)
 
 
-## Private Engagements
+## Audits
 
 ### [Guardian Audits](https://x.com/GuardianAudits)
 
@@ -24,7 +24,7 @@
 | [Reya Network](https://reya.network/) |  | [📄]() |
 
 
-## Competitive Audits
+### Competitive Audits
 
 | Contest | Category | Ranking | Report |
 | - | - | :-: | :-: |

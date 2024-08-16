@@ -26,9 +26,3 @@
 -  [**Codehawks - Escrow Contract**](https://github.com/areezladhani/Audits/blob/main/audits/CodeHawks.md)
 
 ### Hashlock
--  [**Jubi Dao - DAO**](https://github.com/areezladhani/Audits/blob/main/audits/HashlockPending.md) 
--  [**IHT - ERC20 Token**](https://github.com/areezladhani/Audits/blob/main/audits/HashlockPending.md)
--  [**Mezfi**](https://github.com/areezladhani/Audits/blob/main/audits/HashlockPending.md)
--  [**Csens - NFT, ERC20 Token**](https://github.com/areezladhani/Audits/blob/main/audits/HashlockPending.md)
--  [**Horselink - Marketplace**](https://github.com/areezladhani/Audits/blob/main/audits/HashlockPending.md)
--  [**Redbelly Network - Blockchain**](https://github.com/areezladhani/Audits/blob/main/audits/HashlockPending.md)

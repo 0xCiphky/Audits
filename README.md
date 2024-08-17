@@ -28,7 +28,7 @@
 
 | Contest | Category | Ranking | Report |
 | - | - | :-: | :-: |
-| [Munchables](https://code4rena.com/audits/2024-07-munchables#top) |  | 🥈2nd | pending |
+| [Munchables](https://code4rena.com/audits/2024-07-munchables#top) |  | 🥈2nd | [📄](https://code4rena.com/reports/2024-07-munchables) |
 | [Doubler Invitational - Mitigation](https://code4rena.com/audits/2024-06-doubler-invitational#top) |  | pending | pending |
 | [Doubler Invitational](https://code4rena.com/audits/2024-06-doubler-invitational#top) |  | 🥈2nd | pending|
 | [Renzo - Mitigation](https://code4rena.com/audits/2024-06-renzo-mitigation-review#top) |  | 🥇1st | [📄](https://code4rena.com/reports/2024-04-renzo#mitigation-review) |

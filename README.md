@@ -13,7 +13,7 @@
 
 | Project | Category | Report |
 | - | :-: | :-: |
-| [GammaSwap - GMXv2 vault](https://gammaswap.com/) |  | [📄]() |
+| [GammaSwap](https://gammaswap.com/) | GMXv2 vault | [📄]() |
 | [Sentiment](https://www.sentiment.xyz/) |  | [📄]() |
 | [jGM Jones](https://www.jonesdao.io/) |  | [📄]() |
 

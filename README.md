@@ -30,7 +30,7 @@
 | - | - | :-: | :-: |
 | [Munchables](https://code4rena.com/audits/2024-07-munchables#top) |  | 🥈2nd | [📄](https://code4rena.com/reports/2024-07-munchables) |
 | [Doubler Invitational - Mitigation](https://code4rena.com/audits/2024-06-doubler-invitational#top) |  | pending | pending |
-| [Doubler Invitational](https://code4rena.com/audits/2024-06-doubler-invitational#top) |  | 🥈2nd | pending|
+| [Doubler Invitational](https://code4rena.com/audits/2024-06-doubler-invitational#top) |  | 🥈2nd | [📄](https://code4rena.com/audits/2024-06-doubler-invitational#top)|
 | [Renzo - Mitigation](https://code4rena.com/audits/2024-06-renzo-mitigation-review#top) |  | 🥇1st | [📄](https://code4rena.com/reports/2024-04-renzo#mitigation-review) |
 | [Renzo](https://code4rena.com/audits/2024-04-renzo#top) |  | 6th | [📄](https://code4rena.com/reports/2024-04-renzo) |
 | [Wise Lending](https://code4rena.com/audits/2024-02-wise-lending#top) |  | 4th | [📄](https://code4rena.com/reports/2024-02-wise-lending) |

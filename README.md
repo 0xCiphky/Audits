@@ -4,8 +4,7 @@
   
 - [Code4rena](https://code4rena.com/@0xCiphky)
 
-- [CodeHawks](https://www.codehawks.com/profile/clkrx20ym0000ju088s337njb)
-
+- [Sherlock](https://audits.sherlock.xyz/watson/0xCiphky)
 
 ## Audits
 

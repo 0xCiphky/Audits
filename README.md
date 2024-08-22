@@ -1,5 +1,9 @@
 # Portfolio
 
+Independent Security Researcher
+
+Reach out via [twitter](https://x.com/0xCiphky)
+
 ## Highlights
 - [Code4rena Profile](https://code4rena.com/@0xCiphky)
 - [Sherlock Profile](https://audits.sherlock.xyz/watson/0xCiphky)

@@ -1,12 +1,8 @@
 # Portfolio
 
-- [Twitter](https://twitter.com/0xCiphky)
-  
-- [Code4rena](https://code4rena.com/@0xCiphky)
-
-- [Sherlock](https://audits.sherlock.xyz/watson/0xCiphky)
-
 ## Highlights
+- [Code4rena Profile](https://code4rena.com/@0xCiphky)
+- [Sherlock Profile](https://audits.sherlock.xyz/watson/0xCiphky)
 
 ## Audit Contests
 

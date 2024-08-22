@@ -31,5 +31,5 @@
 
 | Project | Category | Report |
 | - | :-: | :-: |
-| [Reya Network](https://reya.network/) | Perpetuals  | [📄]() |
+| [Reya Network](https://reya.network/) | Perpetuals DEX | [📄]() |
 

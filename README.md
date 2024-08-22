@@ -2,7 +2,7 @@
 
 I am an Independent Security Researcher who actively engages in audit contests and collaborates with reputable firms. My work can be found below. 
 
-Feel free to reach out via [Twitter](https://x.com/0xCiphky).
+Feel free to reach out via [Twitter](https://x.com/0xCiphky)
 
 ## Highlights
 - [Code4rena Profile](https://code4rena.com/@0xCiphky)

@@ -23,9 +23,9 @@
 
 | Project | Category | Report |
 | - | :-: | :-: |
-| [GammaSwap](https://gammaswap.com/) | GMXv2 vault | [📄]() |
-| [Sentiment](https://www.sentiment.xyz/) | Lending | [📄]() |
-| [jGM Jones](https://www.jonesdao.io/) | GMXv2 vault | [📄]() |
+| [GammaSwap](https://gammaswap.com/) | Perpetual Options, GMXv2 vault | [📄]() |
+| [Sentiment](https://www.sentiment.xyz/) |  Leverage Lending | [📄]() |
+| [jGM Jones](https://www.jonesdao.io/) | DeFi strategies,GMXv2 vault | [📄]() |
 
 ### [Pashov Audit Group](https://x.com/PashovAuditGrp)
 

@@ -12,6 +12,7 @@ Feel free to reach out via [Twitter](https://x.com/0xCiphky)
 
 | Contest | Category | Ranking | Report |
 | - | - | :-: | :-: |
+| [Karak Restaking](https://code4rena.com/audits/2024-07-karak-restaking#top) | ETH Restaking | 🥈2nd | [📄](https://code4rena.com/reports/2024-07-karak-restaking) |
 | [Munchables](https://code4rena.com/audits/2024-07-munchables#top) | GameFi | 🥈2nd | [📄](https://code4rena.com/reports/2024-07-munchables) |
 | [Doubler Invitational](https://code4rena.com/audits/2024-06-doubler-invitational#top) | Yield Farming | 🥈2nd | [📄](https://code4rena.com/audits/2024-06-doubler-invitational#top)|
 | [Renzo Mitigation Review](https://code4rena.com/audits/2024-06-renzo-mitigation-review#top) | Staking, LRT | 🥇1st | [📄](https://code4rena.com/reports/2024-04-renzo#mitigation-review) |

@@ -12,10 +12,11 @@ Feel free to reach out via [Twitter](https://x.com/0xCiphky)
 
 | Contest | Category | Ranking | Report |
 | - | - | :-: | :-: |
+| [Karak Restaking - Mitigation Review](https://code4rena.com/audits/2024-09-karak-restaking-mitigation-review) | ETH Restaking | 🥇1st | [📄](https://code4rena.com/audits/2024-09-karak-restaking-mitigation-review) |
 | [Karak Restaking](https://code4rena.com/audits/2024-07-karak-restaking#top) | ETH Restaking | 🥈2nd | [📄](https://code4rena.com/reports/2024-07-karak-restaking) |
 | [Munchables](https://code4rena.com/audits/2024-07-munchables#top) | GameFi | 🥈2nd | [📄](https://code4rena.com/reports/2024-07-munchables) |
 | [Doubler Invitational](https://code4rena.com/audits/2024-06-doubler-invitational#top) | Yield Farming | 🥈2nd | [📄](https://code4rena.com/audits/2024-06-doubler-invitational#top)|
-| [Renzo Mitigation Review](https://code4rena.com/audits/2024-06-renzo-mitigation-review#top) | Staking, LRT | 🥇1st | [📄](https://code4rena.com/reports/2024-04-renzo#mitigation-review) |
+| [Renzo - Mitigation Review](https://code4rena.com/audits/2024-06-renzo-mitigation-review#top) | Staking, LRT | 🥇1st | [📄](https://code4rena.com/reports/2024-04-renzo#mitigation-review) |
 | [Renzo](https://code4rena.com/audits/2024-04-renzo#top) | Staking, LRT | 6th | [📄](https://code4rena.com/reports/2024-04-renzo) |
 | [Wise Lending](https://code4rena.com/audits/2024-02-wise-lending#top) | Lending | 4th | [📄](https://code4rena.com/reports/2024-02-wise-lending) |
 | [The Standard](https://codehawks.cyfrin.io/c/2023-12-the-standard/results?lt=contest&page=1&sc=reward&sj=reward&t=leaderboard) | 	Borrowing | 🥉3rd | [📄](https://codehawks.cyfrin.io/c/2023-12-the-standard/results?lt=contest&page=1&sc=reward&sj=reward&t=report) |
@@ -28,6 +29,7 @@ Feel free to reach out via [Twitter](https://x.com/0xCiphky)
 
 | Project | Category | Report |
 | - | :-: | :-: |
+| [Ethena](https://ethena.fi/) | Synthetic Dollar | [📄]() |
 | [Reya Network](https://reya.network/) | Perpetuals DEX | [📄]() |
 
 ### [Guardian Audits](https://x.com/GuardianAudits)

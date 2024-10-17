@@ -29,7 +29,7 @@ Feel free to reach out via [Twitter](https://x.com/0xCiphky)
 
 | Project | Category | Report |
 | - | :-: | :-: |
-| [Ethena](https://ethena.fi/) | Synthetic Dollar | [📄]() |
+| [Ethena](https://ethena.fi/) | Synthetic Dollar | [📄](https://github.com/pashov/audits/blob/master/team/pdf/Ethena-security-review-August.pdf) |
 | [Reya Network](https://reya.network/) | Perpetuals DEX | [📄](https://github.com/pashov/audits/blob/master/team/pdf/ReyaNetwork-security-review-June2.pdf) |
 
 ### [Guardian Audits](https://x.com/GuardianAudits)

@@ -12,6 +12,7 @@ Feel free to reach out via [Twitter](https://x.com/0xCiphky)
 
 | Contest | Category | Ranking | Report |
 | - | - | :-: | :-: |
+| [Symbiotic](https://cantina.xyz/competitions/8bab566e-a6d4-4c1b-9f28-71a94bfd1da2/leaderboard) | Multi-Asset Restaking | 🥉3rd | [📄]() |
 | [Karak Restaking - Mitigation Review](https://code4rena.com/audits/2024-09-karak-restaking-mitigation-review) | ETH Restaking | 🥇1st | [📄](https://code4rena.com/audits/2024-09-karak-restaking-mitigation-review) |
 | [Karak Restaking](https://code4rena.com/audits/2024-07-karak-restaking#top) | ETH Restaking | 🥈2nd | [📄](https://code4rena.com/reports/2024-07-karak-restaking) |
 | [Munchables](https://code4rena.com/audits/2024-07-munchables#top) | GameFi | 🥈2nd | [📄](https://code4rena.com/reports/2024-07-munchables) |

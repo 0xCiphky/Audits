@@ -13,10 +13,10 @@ Feel free to reach out via [Twitter](https://x.com/0xCiphky)
 | Contest | Category | Ranking | Report |
 | - | - | :-: | :-: |
 | [Symbiotic](https://cantina.xyz/competitions/8bab566e-a6d4-4c1b-9f28-71a94bfd1da2/leaderboard) | Multi-Asset Restaking | 🥉3rd | [📄]() |
-| [Karak Restaking - Mitigation Review](https://code4rena.com/audits/2024-09-karak-restaking-mitigation-review) | ETH Restaking | 🥇1st | [📄](https://code4rena.com/audits/2024-09-karak-restaking-mitigation-review) |
+| [Karak Restaking - Mitigation Review](https://code4rena.com/audits/2024-09-karak-restaking-mitigation-review) | ETH Restaking | 🥇1st | Private |
 | [Karak Restaking](https://code4rena.com/audits/2024-07-karak-restaking#top) | ETH Restaking | 🥈2nd | [📄](https://code4rena.com/reports/2024-07-karak-restaking) |
 | [Munchables](https://code4rena.com/audits/2024-07-munchables#top) | GameFi | 🥈2nd | [📄](https://code4rena.com/reports/2024-07-munchables) |
-| [Doubler Invitational](https://code4rena.com/audits/2024-06-doubler-invitational#top) | Yield Farming | 🥈2nd | [📄](https://code4rena.com/audits/2024-06-doubler-invitational#top)|
+| [Doubler Invitational](https://code4rena.com/audits/2024-06-doubler-invitational#top) | Yield Farming | 🥈2nd | Private |
 | [Renzo - Mitigation Review](https://code4rena.com/audits/2024-06-renzo-mitigation-review#top) | Staking, LRT | 🥇1st | [📄](https://code4rena.com/reports/2024-04-renzo#mitigation-review) |
 | [Renzo](https://code4rena.com/audits/2024-04-renzo#top) | Staking, LRT | 6th | [📄](https://code4rena.com/reports/2024-04-renzo) |
 | [Wise Lending](https://code4rena.com/audits/2024-02-wise-lending#top) | Lending | 4th | [📄](https://code4rena.com/reports/2024-02-wise-lending) |
@@ -38,7 +38,7 @@ Feel free to reach out via [Twitter](https://x.com/0xCiphky)
 
 | Project | Category | Report |
 | - | :-: | :-: |
-| [GammaSwap](https://gammaswap.com/) | Perpetual Options, GMXv2 vault | [📄]() |
-| [Sentiment](https://www.sentiment.xyz/) |  Leverage Lending | [📄]() |
-| [jGM Jones](https://www.jonesdao.io/) | DeFi strategies, GMXv2 vault | [📄]() |
+| [GammaSwap](https://gammaswap.com/) | Perpetual Options, GMXv2 vault | Private |
+| [Sentiment](https://www.sentiment.xyz/) |  Leverage Lending | Private |
+| [jGM Jones](https://www.jonesdao.io/) | DeFi strategies, GMXv2 vault | Private |
 
